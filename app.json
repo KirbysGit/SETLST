@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "SETLST",
+    "slug": "setlst",
+    "scheme": "setlst",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.setlst.app"
+    },
+    "android": {
+      "package": "com.setlst.app",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
