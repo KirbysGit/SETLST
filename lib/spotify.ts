@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 WebBrowser.maybeCompleteAuthSession();
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-export const SPOTIFY_CLIENT_ID = "14b9096ea94e43f7bc0d1442e631e950";
+export const SPOTIFY_CLIENT_ID = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!;
 
 const SPOTIFY_SCOPES = [
   "user-read-currently-playing",

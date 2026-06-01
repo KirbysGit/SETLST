@@ -1,6 +1,12 @@
 .expo/
 .expo-shared/
 node_modules/
+
+# Environment variables — never commit these
+.env
+.env.local
+.env.production
+.env*.local
 dist/
 npm-debug.log*
 yarn-debug.log*
