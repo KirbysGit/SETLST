@@ -2,15 +2,13 @@ import { Tabs } from "expo-router";
 import { ColorValue, Text } from "react-native";
 
 import { theme } from "../../constants/theme";
-import { useDashboardStyle } from "../../contexts/DashboardStyleContext";
 
 function TabIcon({ label, color }: { label: string; color: ColorValue }) {
   return <Text style={{ color, fontSize: 13, fontWeight: "900", letterSpacing: 0 }}>{label}</Text>;
 }
 
 export default function TabLayout() {
-  const { dashboardStyle } = useDashboardStyle();
-  const activeColor = dashboardStyle === "music" ? theme.colors.purple : theme.colors.teal;
+  const activeColor = theme.colors.purple;
 
   return (
     <Tabs

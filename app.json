@@ -16,10 +16,18 @@
       "edgeToEdgeEnabled": true
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "73d76415-b989-4f6e-8a59-5ac348ddbe00"
+      }
+    },
+    "owner": "cksolutions"
   }
 }
