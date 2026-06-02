@@ -80,8 +80,18 @@ export default function ProfileScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.setupButton}
           >
-            <Text style={styles.setupText}>Go through account setup →</Text>
+            <Text style={styles.setupText}>Account setup (Spotify + Gym) →</Text>
           </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.setupWrapper}
+          onPress={() => router.push("/(onboarding)/goals")}
+          activeOpacity={0.85}
+        >
+          <View style={[styles.setupButton, { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.purple }]}>
+            <Text style={[styles.setupText, { color: theme.colors.purple }]}>Goals setup →</Text>
+          </View>
         </TouchableOpacity>
 
         {/* Spotify status + disconnect */}
