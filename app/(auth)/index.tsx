@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Dimensions,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,6 +10,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "../../constants/theme";
+
+const appIcon = require("../../images/v1_app_icon.png");
+const horizLockup = require("../../images/v1_horiz_lockup.png");
 
 const { width } = Dimensions.get("window");
 

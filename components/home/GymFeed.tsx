@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { theme } from "../../constants/theme";
 
@@ -21,9 +22,14 @@ export function EmptyGymState() {
 // ─── Single feed row ──────────────────────────────────────────────────────────
 function FeedRow({ row }: { row: PresenceRow }) {
   const initials = row.display_name?.slice(0, 2).toUpperCase() ?? "??";
+  const router = useRouter();
 
   return (
-    <View style={[styles.row, !row.is_playing && styles.rowPaused]}>
+    <TouchableOpacity
+      style={[styles.row, !row.is_playing && styles.rowPaused]}
+      onPress={() => router.push(`/user/${row.user_id}`)}
+      activeOpacity={0.75}
+    >
       {/* Avatar */}
       <View style={[styles.avatar, !row.is_playing && styles.avatarPaused]}>
         <Text style={styles.avatarText}>{initials}</Text>
@@ -60,7 +66,7 @@ function FeedRow({ row }: { row: PresenceRow }) {
           <Text style={styles.pausedText}>paused</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 

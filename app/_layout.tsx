@@ -15,13 +15,39 @@ function useAuthRedirect(session: Session | null, ready: boolean) {
   useEffect(() => {
     if (!ready) return;
 
-    const inAuthGroup = segments[0] === "(auth)";
+    const inAuth = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "(onboarding)";
+    const inTabs = segments[0] === "(tabs)";
 
-    if (!session && !inAuthGroup) {
-      router.replace("/(auth)");
-    } else if (session && inAuthGroup) {
-      router.replace("/(tabs)");
+    async function redirect() {
+      if (!session) {
+        if (!inAuth) router.replace("/(auth)");
+        return;
+      }
+
+      // Logged in — check onboarding state
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, onboarding_complete")
+        .eq("id", session.user.id)
+        .single();
+
+      const hasProfile = !!profile?.display_name;
+      const onboardingDone = !!profile?.onboarding_complete;
+
+      if (!hasProfile && !inOnboarding) {
+        // Brand new user — start from profile setup
+        router.replace("/(onboarding)/profile-setup");
+      } else if (hasProfile && !onboardingDone && !inOnboarding && !inTabs) {
+        // Has profile but hasn't finished onboarding — resume at spotify
+        router.replace("/(onboarding)/connect-spotify");
+      } else if (inAuth) {
+        // Returning user who is fully set up
+        router.replace("/(tabs)");
+      }
     }
+
+    redirect();
   }, [session, ready, segments]);
 }
 
@@ -47,18 +73,19 @@ export default function RootLayout() {
   return (
     <DashboardStyleProvider>
       <SpotifyProvider>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: theme.colors.background },
-        }}
-      >
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="settings" options={{ presentation: "modal" }} />
-      </Stack>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: theme.colors.background },
+          }}
+        >
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="user/[id]" />
+          <Stack.Screen name="settings" options={{ presentation: "modal" }} />
+        </Stack>
       </SpotifyProvider>
     </DashboardStyleProvider>
   );

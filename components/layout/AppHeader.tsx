@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { theme } from "../../constants/theme";
+
+const horizLockup = require("../../images/v1_horiz_lockup.png");
 
 type AppHeaderProps = {
   eyebrow?: string;
@@ -16,8 +18,8 @@ export function AppHeader({
 
   return (
     <View style={styles.header}>
-      <View>
-        <Text style={styles.wordmark}>SETLST</Text>
+      <View style={styles.logoArea}>
+        <Image source={horizLockup} style={styles.lockup} resizeMode="contain" />
         <Text style={styles.eyebrow}>{eyebrow}</Text>
       </View>
 
@@ -47,12 +49,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.lg,
     marginBottom: theme.spacing.xl
   },
-  wordmark: {
-    color: theme.colors.text,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: "900",
-    letterSpacing: 0
+  logoArea: {
+    gap: 4,
+  },
+  lockup: {
+    height: 28,
+    width: 120,
   },
   eyebrow: {
     marginTop: 4,

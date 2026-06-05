@@ -147,7 +147,7 @@ export function useGymPresence(): GymPresence {
 
       // Realtime subscription
       channel = supabase
-        .channel(`presence:${homeGym}`)
+        .channel(`gym-feed:${homeGym}`)
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "presence", filter: `gym=eq.${homeGym}` },

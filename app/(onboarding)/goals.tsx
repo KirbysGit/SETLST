@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,135 +13,175 @@ import { LinearGradient } from "expo-linear-gradient";
 import { supabase } from "../../lib/supabase";
 import { theme } from "../../constants/theme";
 
-const { width } = Dimensions.get("window");
-
-// ─── Question definitions ─────────────────────────────────────────────────────
+// ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [
   {
     key: "training_style",
-    emoji: "🏋️",
-    question: "How do you train?",
-    subtitle: "Pick the style that best describes your sessions.",
+    label: "Training Style",
+    question: "What's your\ntraining style?",
+    subtitle: "Choose the style that fits you best.",
+    layout: "grid",
     multi: false,
     options: [
-      "Powerlifting",
-      "Bodybuilding",
-      "Olympic Weightlifting",
-      "CrossFit / Functional",
-      "Calisthenics",
-      "Cardio / Endurance",
-      "Sports Performance",
-      "General Fitness",
-      "Weight Loss",
-      "Rehab / Recovery",
+      { label: "Powerlifting",   icon: "🏋️" },
+      { label: "Bodybuilding",   icon: "💪" },
+      { label: "Functional",     icon: "⚡" },
+      { label: "Cardio",         icon: "🏃" },
+      { label: "Calisthenics",   icon: "🤸" },
+      { label: "General Fitness",icon: "🏅" },
+      { label: "Olympic Lifting",icon: "🥇" },
+      { label: "Sports Perf.",   icon: "⚽" },
+      { label: "Rehab",          icon: "🩺" },
+      { label: "Weight Loss",    icon: "🔥" },
     ],
   },
   {
     key: "primary_goal",
-    emoji: "🎯",
-    question: "What's your main goal?",
-    subtitle: "What are you working toward right now?",
+    label: "Primary Goal",
+    question: "What are you\nworking toward?",
+    subtitle: "We'll use this to personalize your profile and tracking.",
+    layout: "list",
     multi: false,
     options: [
-      "Build Strength",
-      "Lose Weight",
-      "Build Muscle",
-      "Improve Endurance",
-      "Improve Flexibility",
-      "Maintain Fitness",
-      "Train for Competition",
-      "Mental Health",
-      "Build a Habit",
+      { label: "Build Strength",      icon: "⚡" },
+      { label: "Build Muscle",        icon: "💪" },
+      { label: "Improve Endurance",   icon: "🏃" },
+      { label: "Build a Habit",       icon: "📅" },
+      { label: "Lose Weight",         icon: "🔥" },
+      { label: "General Health",      icon: "❤️" },
+      { label: "Train for a Competition", icon: "🏆" },
+      { label: "Mental Health",       icon: "🧠" },
+      { label: "Maintain Fitness",    icon: "⚖️" },
     ],
   },
   {
     key: "gym_frequency",
-    emoji: "📅",
-    question: "How often do you aim to go?",
-    subtitle: "Your target — not necessarily your current streak.",
+    label: "Weekly Target",
+    question: "How often do you\nwant to train?",
+    subtitle: "Set a realistic weekly goal.",
+    hint: "You can change this anytime",
+    layout: "list-centered",
     multi: false,
     options: [
-      "2 days / week",
-      "3 days / week",
-      "4 days / week",
-      "5 days / week",
-      "6+ days / week",
-    ],
-  },
-  {
-    key: "experience_level",
-    emoji: "📈",
-    question: "How long have you been training?",
-    subtitle: "Helps others know where you're at.",
-    multi: false,
-    options: [
-      "Just Starting Out",
-      "Some Experience (6mo–2yr)",
-      "Intermediate (2–5yr)",
-      "Advanced (5yr+)",
-      "Competitive Athlete",
+      { label: "2 days", icon: "" },
+      { label: "3 days", icon: "" },
+      { label: "4 days", icon: "" },
+      { label: "5 days", icon: "" },
+      { label: "6+ days", icon: "" },
     ],
   },
   {
     key: "open_to",
-    emoji: "🤝",
-    question: "What are you open to?",
-    subtitle: "Select all that apply.",
+    label: "Open To",
+    question: "What are you\nopen to?",
+    subtitle: "Help others understand your vibe at the gym.",
+    layout: "list",
     multi: true,
     options: [
-      "Workout Partners",
-      "Friendly Competition",
-      "Coaching / Being Coached",
-      "Spotting",
-      "Just Here for the Music",
-      "Keeping to Myself",
-    ],
-  },
-  {
-    key: "vibe",
-    emoji: "🎧",
-    question: "What's your gym vibe?",
-    subtitle: "Others will see this on your profile.",
-    multi: false,
-    options: [
-      "Headphones in, don't talk to me",
-      "Happy to chat between sets",
-      "Hype each other up",
-      "Here to grind silently",
-      "Open to new gym friends",
+      { label: "Workout partners",     icon: "🤝" },
+      { label: "Friendly competition", icon: "🏆" },
+      { label: "Spotting",             icon: "🙌" },
+      { label: "Just here for music",  icon: "🎧" },
+      { label: "Keeping to myself",    icon: "🎯" },
+      { label: "Coaching others",      icon: "📣" },
     ],
   },
 ];
 
-// ─── Option chip ──────────────────────────────────────────────────────────────
-function OptionChip({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  if (selected) {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.chipWrapper}>
-        <LinearGradient
-          colors={["#2EF2C3", "#8B5CF6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.chipGradient}
-        >
-          <Text style={styles.chipTextSelected}>{label}</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    );
-  }
+// ─── Grid card (training style) ───────────────────────────────────────────────
+function GridCard({
+  icon, label, selected, onPress,
+}: { icon: string; label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.75}
+      style={[styles.gridCard, selected && styles.gridCardSelected]}
+    >
+      <Text style={styles.gridIcon}>{icon}</Text>
+      <Text style={[styles.gridLabel, selected && styles.gridLabelSelected]} numberOfLines={2}>
+        {label}
+      </Text>
+      {selected && <View style={styles.gridCheck}><Text style={styles.gridCheckText}>✓</Text></View>}
+    </TouchableOpacity>
+  );
+}
+
+// ─── List row ─────────────────────────────────────────────────────────────────
+function ListRow({
+  icon, label, selected, centered, onPress,
+}: { icon: string; label: string; selected: boolean; centered?: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.75}
+      style={[styles.listRow, selected && styles.listRowSelected]}
+    >
+      {!centered && icon ? <Text style={styles.listIcon}>{icon}</Text> : null}
+      <Text style={[
+        styles.listLabel,
+        selected && styles.listLabelSelected,
+        centered && styles.listLabelCentered,
+      ]}>
+        {label}
+      </Text>
+      {selected && (
+        <View style={styles.listCheck}>
+          <Text style={styles.listCheckText}>✓</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+// ─── Summary card (final step preview) ───────────────────────────────────────
+function SummaryCard({ answers }: { answers: Record<string, any> }) {
+  const parts = [
+    answers.training_style,
+    answers.primary_goal,
+    answers.gym_frequency,
+  ].filter(Boolean);
+
+  const openTo = Array.isArray(answers.open_to) ? answers.open_to[0] : null;
+
+  if (!parts.length) return null;
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.75} style={[styles.chipWrapper, styles.chipUnselected]}>
-      <Text style={styles.chipText}>{label}</Text>
-    </TouchableOpacity>
+    <View style={styles.summaryCard}>
+      <Text style={styles.summaryLine} numberOfLines={1}>
+        {parts.join("  ·  ")}
+      </Text>
+      {answers.gym_frequency && (
+        <Text style={styles.summaryFreq}>{answers.gym_frequency} / week</Text>
+      )}
+      {openTo && (
+        <Text style={styles.summaryOpen}>
+          <Text style={styles.summaryOpenLabel}>Open to </Text>
+          {openTo.toLowerCase()}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+// ─── Bottom step labels ───────────────────────────────────────────────────────
+function StepLabels({ current }: { current: number }) {
+  const labels = [...STEPS.map((s) => s.label), "You're All Set"];
+  return (
+    <View style={styles.stepLabels}>
+      {labels.map((label, i) => (
+        <View key={label} style={styles.stepLabelItem}>
+          <View style={[styles.stepCircle, i <= current && styles.stepCircleActive]}>
+            <Text style={[styles.stepNum, i <= current && styles.stepNumActive]}>
+              {i + 1}
+            </Text>
+          </View>
+          {i < labels.length - 1 && (
+            <View style={[styles.stepConnector, i < current && styles.stepConnectorActive]} />
+          )}
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -155,24 +194,23 @@ export default function Goals() {
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
-  const answer = answers[current.key];
+  const answer = answers[current?.key ?? ""];
+  const totalSteps = STEPS.length + 1; // +1 for finish
 
-  function isSelected(option: string): boolean {
-    if (current.multi) {
-      return Array.isArray(answer) && answer.includes(option);
-    }
-    return answer === option;
+  function isSelected(label: string): boolean {
+    if (current.multi) return Array.isArray(answer) && answer.includes(label);
+    return answer === label;
   }
 
-  function toggle(option: string) {
+  function toggle(label: string) {
     if (current.multi) {
       const prev = Array.isArray(answer) ? answer : [];
-      const next = prev.includes(option)
-        ? prev.filter((o) => o !== option)
-        : [...prev, option];
+      const next = prev.includes(label)
+        ? prev.filter((o) => o !== label)
+        : [...prev, label];
       setAnswers((a) => ({ ...a, [current.key]: next }));
     } else {
-      setAnswers((a) => ({ ...a, [current.key]: option }));
+      setAnswers((a) => ({ ...a, [current.key]: label }));
     }
   }
 
@@ -181,20 +219,9 @@ export default function Goals() {
     return !!answer;
   }
 
-  function next() {
-    if (step < STEPS.length - 1) {
-      setStep((s) => s + 1);
-    }
-  }
-
-  function back() {
-    if (step > 0) setStep((s) => s - 1);
-  }
-
   async function finish() {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
-
     if (user) {
       await supabase.from("profiles").upsert({
         id: user.id,
@@ -202,41 +229,30 @@ export default function Goals() {
         goals_complete: true,
       });
     }
-
     setSaving(false);
-    router.replace("/(tabs)");
-  }
-
-  function skip() {
     router.replace("/(tabs)");
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Progress bar */}
-      <View style={styles.progressTrack}>
-        {STEPS.map((_, i) => (
-          <View key={i} style={styles.progressSegment}>
-            {i <= step ? (
-              <LinearGradient
-                colors={["#2EF2C3", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.progressFill}
-              />
-            ) : (
-              <View style={styles.progressEmpty} />
-            )}
-          </View>
-        ))}
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <Text style={styles.logoSmall}>S E T L S T</Text>
+        <Text style={styles.stepCounter}>Step {step + 1} of {STEPS.length}</Text>
       </View>
 
-      {/* Header */}
+      {/* Progress bar */}
+      <View style={styles.progressTrack}>
+        <LinearGradient
+          colors={["#2EF2C3", "#8B5CF6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.progressFill, { width: `${((step + 1) / totalSteps) * 100}%` }]}
+        />
+      </View>
+
+      {/* Question header */}
       <View style={styles.header}>
-        <Text style={styles.stepCount}>
-          {step + 1} of {STEPS.length}
-        </Text>
-        <Text style={styles.emoji}>{current.emoji}</Text>
         <Text style={styles.question}>{current.question}</Text>
         <Text style={styles.subtitle}>{current.subtitle}</Text>
       </View>
@@ -245,57 +261,87 @@ export default function Goals() {
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.options}
+        contentContainerStyle={[
+          styles.optionsContainer,
+          current.layout === "grid" && styles.optionsGrid,
+        ]}
       >
-        {current.options.map((option) => (
-          <OptionChip
-            key={option}
-            label={option}
-            selected={isSelected(option)}
-            onPress={() => toggle(option)}
-          />
-        ))}
+        {current.options.map((opt) => {
+          if (current.layout === "grid") {
+            return (
+              <GridCard
+                key={opt.label}
+                icon={opt.icon}
+                label={opt.label}
+                selected={isSelected(opt.label)}
+                onPress={() => toggle(opt.label)}
+              />
+            );
+          }
+          return (
+            <ListRow
+              key={opt.label}
+              icon={opt.icon}
+              label={opt.label}
+              selected={isSelected(opt.label)}
+              centered={current.layout === "list-centered"}
+              onPress={() => toggle(opt.label)}
+            />
+          );
+        })}
+
+        {/* Hint text (frequency step) */}
+        {"hint" in current && (
+          <View style={styles.hintRow}>
+            <Text style={styles.hintText}>ⓘ  {current.hint}</Text>
+          </View>
+        )}
+
+        {/* Summary preview on last step */}
+        {isLast && <SummaryCard answers={answers} />}
       </ScrollView>
 
-      {/* Actions */}
+      {/* Bottom actions */}
       <View style={styles.actions}>
-        {/* Next / Finish */}
         <TouchableOpacity
-          style={[styles.nextWrapper, !hasAnswer() && styles.nextDisabled]}
-          onPress={isLast ? finish : next}
+          style={[styles.continueWrapper, !hasAnswer() && styles.continueDisabled]}
+          onPress={isLast ? finish : () => setStep((s) => s + 1)}
           disabled={!hasAnswer() || saving}
           activeOpacity={0.85}
         >
-          <LinearGradient
-            colors={hasAnswer() ? ["#2EF2C3", "#8B5CF6"] : [theme.colors.border, theme.colors.border]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.nextButton}
-          >
-            {saving ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.nextText}>
-                {isLast ? "Finish →" : "Next →"}
-              </Text>
-            )}
-          </LinearGradient>
+          {isLast ? (
+            <LinearGradient
+              colors={["#8B5CF6", "#6D28D9"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.continueButton}
+            >
+              {saving
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={styles.continueText}>Finish setup</Text>
+              }
+            </LinearGradient>
+          ) : (
+            <View style={[styles.continueButton, styles.continueTeal, !hasAnswer() && styles.continueTealDisabled]}>
+              <Text style={styles.continueText}>Continue</Text>
+            </View>
+          )}
         </TouchableOpacity>
 
-        {/* Back + Skip row */}
         <View style={styles.secondaryRow}>
           {step > 0 ? (
-            <TouchableOpacity onPress={back} style={styles.backButton}>
+            <TouchableOpacity onPress={() => setStep((s) => s - 1)}>
               <Text style={styles.backText}>← Back</Text>
             </TouchableOpacity>
-          ) : (
-            <View />
-          )}
-          <TouchableOpacity onPress={skip}>
+          ) : <View />}
+          <TouchableOpacity onPress={() => router.replace("/(tabs)")}>
             <Text style={styles.skipText}>Skip all</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Step label strip */}
+      <StepLabels current={step} />
     </SafeAreaView>
   );
 }
@@ -305,125 +351,231 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingTop: 8,
   },
-  progressTrack: {
+  topBar: {
     flexDirection: "row",
-    gap: 6,
-    marginBottom: 28,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
   },
-  progressSegment: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    overflow: "hidden",
+  logoSmall: {
+    color: theme.colors.text,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 4,
   },
-  progressFill: {
-    flex: 1,
-    borderRadius: 2,
-  },
-  progressEmpty: {
-    flex: 1,
-    backgroundColor: theme.colors.border,
-    borderRadius: 2,
-  },
-  header: {
-    marginBottom: 24,
-    gap: 6,
-  },
-  stepCount: {
+  stepCounter: {
     color: theme.colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginBottom: 4,
   },
-  emoji: {
-    fontSize: 36,
-    marginBottom: 4,
+  progressTrack: {
+    height: 3,
+    backgroundColor: theme.colors.border,
+    borderRadius: 2,
+    marginBottom: 24,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: 3,
+    borderRadius: 2,
+  },
+  header: {
+    gap: 6,
+    marginBottom: 20,
   },
   question: {
     color: theme.colors.text,
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "800",
+    lineHeight: 34,
     letterSpacing: -0.5,
-    lineHeight: 32,
   },
   subtitle: {
     color: theme.colors.textMuted,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
-    lineHeight: 20,
+    lineHeight: 18,
   },
   scroll: {
     flex: 1,
   },
-  options: {
+  optionsContainer: {
+    gap: 10,
+    paddingBottom: 12,
+  },
+  optionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
-    paddingBottom: 16,
   },
-  chipWrapper: {
-    borderRadius: theme.radius.pill,
-    overflow: "hidden",
-  },
-  chipGradient: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: theme.radius.pill,
-  },
-  chipUnselected: {
+  // Grid cards
+  gridCard: {
+    width: "47%",
     backgroundColor: theme.colors.surface,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: theme.colors.border,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    padding: 14,
+    gap: 6,
+    minHeight: 90,
+    justifyContent: "center",
   },
-  chipText: {
+  gridCardSelected: {
+    borderColor: theme.colors.teal,
+    backgroundColor: theme.colors.teal + "12",
+  },
+  gridIcon: {
+    fontSize: 24,
+  },
+  gridLabel: {
     color: theme.colors.textMuted,
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 17,
+  },
+  gridLabelSelected: {
+    color: theme.colors.text,
+  },
+  gridCheck: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: theme.colors.teal,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  gridCheckText: {
+    color: theme.colors.background,
+    fontSize: 11,
+    fontWeight: "900",
+  },
+  // List rows
+  listRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  listRowSelected: {
+    borderColor: theme.colors.teal,
+    backgroundColor: theme.colors.teal + "10",
+  },
+  listIcon: {
+    fontSize: 20,
+    width: 28,
+    textAlign: "center",
+  },
+  listLabel: {
+    flex: 1,
+    color: theme.colors.textMuted,
+    fontSize: 15,
     fontWeight: "600",
   },
-  chipTextSelected: {
-    color: theme.colors.background,
-    fontSize: 14,
+  listLabelSelected: {
+    color: theme.colors.text,
     fontWeight: "700",
   },
+  listLabelCentered: {
+    textAlign: "center",
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  listCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: theme.colors.teal,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  listCheckText: {
+    color: theme.colors.background,
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  hintRow: {
+    alignItems: "center",
+    marginTop: 4,
+  },
+  hintText: {
+    color: theme.colors.teal,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  // Summary card
+  summaryCard: {
+    backgroundColor: theme.colors.elevated,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.purple + "50",
+    padding: 16,
+    gap: 4,
+    marginTop: 8,
+  },
+  summaryLine: {
+    color: theme.colors.text,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  summaryFreq: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  summaryOpen: {
+    color: theme.colors.purple,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  summaryOpenLabel: {
+    color: theme.colors.textMuted,
+    fontWeight: "500",
+  },
+  // Actions
   actions: {
-    gap: 8,
-    paddingBottom: 12,
+    gap: 6,
     paddingTop: 8,
   },
-  nextWrapper: {
-    borderRadius: 12,
+  continueWrapper: {
+    borderRadius: 14,
     overflow: "hidden",
   },
-  nextDisabled: {
-    opacity: 0.5,
+  continueDisabled: {
+    opacity: 0.45,
   },
-  nextButton: {
-    paddingVertical: 16,
+  continueButton: {
+    paddingVertical: 17,
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 14,
   },
-  nextText: {
+  continueTeal: {
+    backgroundColor: theme.colors.teal,
+  },
+  continueTealDisabled: {
+    backgroundColor: theme.colors.border,
+  },
+  continueText: {
     color: theme.colors.background,
     fontSize: 16,
     fontWeight: "800",
-    letterSpacing: 0.5,
   },
   secondaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: 4,
-    paddingVertical: 8,
-  },
-  backButton: {
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   backText: {
     color: theme.colors.textMuted,
@@ -434,5 +586,47 @@ const styles = StyleSheet.create({
     color: theme.colors.textSubtle,
     fontSize: 14,
     fontWeight: "600",
+  },
+  // Step label strip
+  stepLabels: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 8,
+    paddingTop: 4,
+  },
+  stepLabelItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  stepCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepCircleActive: {
+    backgroundColor: theme.colors.teal,
+    borderColor: theme.colors.teal,
+  },
+  stepNum: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: "800",
+  },
+  stepNumActive: {
+    color: theme.colors.background,
+  },
+  stepConnector: {
+    width: 20,
+    height: 1.5,
+    backgroundColor: theme.colors.border,
+  },
+  stepConnectorActive: {
+    backgroundColor: theme.colors.teal,
   },
 });

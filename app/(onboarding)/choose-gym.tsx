@@ -44,7 +44,7 @@ export default function ChooseGym() {
     }
 
     setSaving(false);
-    router.replace("/(onboarding)/goals");
+    router.replace("/(onboarding)/goals-intro");
   }
 
   return (

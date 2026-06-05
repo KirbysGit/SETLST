@@ -1,0 +1,426 @@
+import { useState } from "react";
+import { useRouter } from "expo-router";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
+import { supabase } from "../../lib/supabase";
+import { theme } from "../../constants/theme";
+
+export default function ProfileSetup() {
+  const router = useRouter();
+  const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const canContinue = displayName.trim().length >= 2 && username.trim().length >= 2;
+
+  // ─── Avatar picker ───────────────────────────────────────────────────────────
+  async function pickAvatar() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission needed", "Allow photo access to set a profile picture.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: Platform.OS === "ios", // Android crop UI is broken on many devices
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setAvatarUri(result.assets[0].uri);
+    }
+  }
+
+  // ─── Upload avatar to Supabase Storage ───────────────────────────────────────
+  async function uploadAvatar(userId: string): Promise<string | null> {
+    if (!avatarUri) return null;
+    setUploadingAvatar(true);
+
+    try {
+      const ext = avatarUri.split(".").pop() ?? "jpg";
+      const path = `${userId}/avatar.${ext}`;
+
+      const response = await fetch(avatarUri);
+      const blob = await response.blob();
+
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(path, blob, { upsert: true, contentType: `image/${ext}` });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      return data.publicUrl;
+    } catch (e) {
+      console.warn("Avatar upload failed:", e);
+      return null;
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  // ─── Save profile ────────────────────────────────────────────────────────────
+  async function save() {
+    if (!canContinue) return;
+    setSaving(true);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+
+    // Check username availability
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", username.trim().toLowerCase())
+      .neq("id", user.id)
+      .single();
+
+    if (existing) {
+      Alert.alert("Username taken", "That username is already in use. Try another.");
+      setSaving(false);
+      return;
+    }
+
+    const avatarUrl = await uploadAvatar(user.id);
+
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      display_name: displayName.trim(),
+      username: username.trim().toLowerCase(),
+      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+    });
+
+    setSaving(false);
+    router.replace("/(onboarding)/connect-spotify");
+  }
+
+  const initials = displayName.trim().slice(0, 2).toUpperCase() || "?";
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+      >
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.stepLabel}>ACCOUNT SETUP · STEP 1</Text>
+          <Text style={styles.title}>Set up your{"\n"}profile</Text>
+          <Text style={styles.subtitle}>
+            Choose how you'll appear to other Setlsters — your name and photo are public and visible on your profile, in the gym feed, and when you connect with others.
+          </Text>
+        </View>
+
+        {/* Avatar picker */}
+        <TouchableOpacity style={styles.avatarWrap} onPress={pickAvatar} activeOpacity={0.8}>
+          {avatarUri ? (
+            <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+          ) : (
+            <LinearGradient
+              colors={["#2EF2C3", "#8B5CF6"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatarPlaceholder}
+            >
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            </LinearGradient>
+          )}
+          <View style={styles.avatarEditBadge}>
+            {uploadingAvatar
+              ? <ActivityIndicator size="small" color={theme.colors.background} />
+              : <Text style={styles.avatarEditText}>+</Text>
+            }
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.avatarHint}>Tap to add a photo</Text>
+
+        {/* Fields */}
+        <View style={styles.fields}>
+          <View style={styles.fieldGroup}>
+            <View style={styles.labelRow}>
+              <Text style={styles.fieldLabel}>Display Name</Text>
+              <View style={styles.visibleBadge}>
+                <Text style={styles.visibleBadgeText}>👁  Publicly visible</Text>
+              </View>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Alex Rivera"
+              placeholderTextColor={theme.colors.textMuted}
+              value={displayName}
+              onChangeText={setDisplayName}
+              maxLength={32}
+              returnKeyType="next"
+            />
+            <Text style={styles.fieldHint}>
+              Your full name or nickname — shown on your profile and in the gym feed
+            </Text>
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <View style={styles.labelRow}>
+              <Text style={styles.fieldLabel}>Username</Text>
+              <View style={styles.visibleBadge}>
+                <Text style={styles.visibleBadgeText}>👁  Publicly visible</Text>
+              </View>
+            </View>
+            <View style={styles.usernameRow}>
+              <Text style={styles.atSign}>@</Text>
+              <TextInput
+                style={[styles.input, styles.usernameInput]}
+                placeholder="yourhandle"
+                placeholderTextColor={theme.colors.textMuted}
+                value={username}
+                onChangeText={(t) => setUsername(t.replace(/[^a-z0-9_.]/gi, "").toLowerCase())}
+                autoCapitalize="none"
+                maxLength={20}
+                returnKeyType="done"
+              />
+            </View>
+            <Text style={styles.fieldHint}>
+              Used to find and tag you — letters, numbers and underscores only
+            </Text>
+          </View>
+
+          {/* Public info notice */}
+          <View style={styles.noticeBanner}>
+            <Text style={styles.noticeText}>
+              🔒  Your email address is never shown to other users.
+            </Text>
+          </View>
+        </View>
+
+        {/* CTA */}
+        <TouchableOpacity
+          style={[styles.ctaWrapper, !canContinue && styles.ctaDisabled]}
+          onPress={save}
+          disabled={!canContinue || saving}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={canContinue ? ["#2EF2C3", "#8B5CF6"] : [theme.colors.border, theme.colors.border]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.ctaButton}
+          >
+            {saving
+              ? <ActivityIndicator color={theme.colors.background} />
+              : <Text style={styles.ctaText}>Continue →</Text>
+            }
+          </LinearGradient>
+        </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  inner: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 48,
+    gap: 20,
+  },
+  header: {
+    gap: 6,
+  },
+  stepLabel: {
+    color: theme.colors.teal,
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 2,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: 32,
+    fontWeight: "800",
+    lineHeight: 38,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "500",
+  },
+  avatarWrap: {
+    alignSelf: "center",
+    marginTop: 4,
+  },
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  avatarPlaceholder: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitials: {
+    color: theme.colors.background,
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  avatarEditBadge: {
+    position: "absolute",
+    bottom: 2,
+    right: 2,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: theme.colors.purple,
+    borderWidth: 2,
+    borderColor: theme.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarEditText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
+    lineHeight: 20,
+  },
+  avatarHint: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: "500",
+    textAlign: "center",
+    marginTop: -12,
+  },
+  fields: {
+    gap: 16,
+  },
+  fieldGroup: {
+    gap: 6,
+  },
+  fieldLabel: {
+    color: theme.colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  input: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  usernameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.surface,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: theme.colors.border,
+    paddingLeft: 14,
+  },
+  atSign: {
+    color: theme.colors.teal,
+    fontSize: 16,
+    fontWeight: "800",
+    marginRight: 2,
+  },
+  usernameInput: {
+    flex: 1,
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    paddingLeft: 0,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 2,
+  },
+  visibleBadge: {
+    backgroundColor: theme.colors.elevated,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  visibleBadgeText: {
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  fieldHint: {
+    color: theme.colors.textSubtle,
+    fontSize: 11,
+    fontWeight: "500",
+    marginTop: 4,
+    lineHeight: 15,
+  },
+  noticeBanner: {
+    backgroundColor: theme.colors.elevated,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginTop: 4,
+  },
+  noticeText: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 18,
+  },
+  ctaWrapper: {
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+  ctaDisabled: {
+    opacity: 0.45,
+  },
+  ctaButton: {
+    paddingVertical: 17,
+    alignItems: "center",
+    borderRadius: 14,
+  },
+  ctaText: {
+    color: theme.colors.background,
+    fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+});
