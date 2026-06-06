@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase";
 import { theme } from "../../constants/theme";
+
+const stacked = require("../../images/v1_stacked.png");
 
 export default function Login() {
   const router = useRouter();
@@ -27,12 +29,9 @@ export default function Login() {
         <Text style={styles.backText}>‹</Text>
       </TouchableOpacity>
 
-      {/* Logo placeholder */}
+      {/* Logo */}
       <View style={styles.logoArea}>
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoIcon}>♪</Text>
-        </View>
-        <Text style={styles.appName}>S E T L S T</Text>
+        <Image source={stacked} style={styles.stacked} resizeMode="contain" />
       </View>
 
       {/* Header */}
@@ -148,19 +147,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 20,
   },
-  logoPlaceholder: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  logoIcon: {
-    fontSize: 24,
-    color: theme.colors.teal,
+  stacked: {
+    width: 110,
+    height: 110,
   },
   appName: {
     color: theme.colors.text,

@@ -1,8 +1,10 @@
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../constants/theme";
+
+const wordmark = require("../../images/v1_wordmark.png");
 
 export default function GoalsIntro() {
   const router = useRouter();
@@ -11,7 +13,7 @@ export default function GoalsIntro() {
     <SafeAreaView style={styles.container}>
       {/* Logo */}
       <View style={styles.logoRow}>
-        <Text style={styles.logoText}>S E T L S T</Text>
+        <Image source={wordmark} style={styles.lockup} resizeMode="contain" />
       </View>
 
       {/* Main content */}
@@ -71,6 +73,10 @@ const styles = StyleSheet.create({
   logoRow: {
     alignItems: "center",
     marginBottom: 40,
+  },
+  lockup: {
+    height: 22,
+    width: 130,
   },
   logoText: {
     color: theme.colors.text,

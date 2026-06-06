@@ -11,8 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "../../constants/theme";
 
-const appIcon = require("../../images/v1_app_icon.png");
-const horizLockup = require("../../images/v1_horiz_lockup.png");
+const stacked = require("../../images/v1_stacked.png");
 
 const { width } = Dimensions.get("window");
 
@@ -38,12 +37,9 @@ export default function Landing() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Logo placeholder */}
+      {/* Logo */}
       <View style={styles.logoArea}>
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoIcon}>♪</Text>
-        </View>
-        <Text style={styles.appName}>S E T L S T</Text>
+        <Image source={stacked} style={styles.stacked} resizeMode="contain" />
       </View>
 
       {/* Tagline */}
@@ -104,28 +100,12 @@ const styles = StyleSheet.create({
   },
   logoArea: {
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     marginTop: 16,
   },
-  logoPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: theme.colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  logoIcon: {
-    fontSize: 32,
-    color: theme.colors.teal,
-  },
-  appName: {
-    color: theme.colors.text,
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 6,
+  stacked: {
+    width: 140,
+    height: 140,
   },
   taglineArea: {
     alignItems: "center",

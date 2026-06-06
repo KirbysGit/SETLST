@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { supabase } from "../../lib/supabase";
 import { theme } from "../../constants/theme";
+
+const appIcon = require("../../images/v1_app_icon.png");
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
 const STEPS = [
@@ -237,7 +240,7 @@ export default function Goals() {
     <SafeAreaView style={styles.container}>
       {/* Top bar */}
       <View style={styles.topBar}>
-        <Text style={styles.logoSmall}>S E T L S T</Text>
+        <Image source={appIcon} style={styles.logoSmall} resizeMode="contain" />
         <Text style={styles.stepCounter}>Step {step + 1} of {STEPS.length}</Text>
       </View>
 
@@ -361,10 +364,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   logoSmall: {
-    color: theme.colors.text,
-    fontSize: 12,
-    fontWeight: "900",
-    letterSpacing: 4,
+    width: 28,
+    height: 28,
   },
   stepCounter: {
     color: theme.colors.textMuted,

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 
 import { theme } from "../../constants/theme";
 
-const horizLockup = require("../../images/v1_horiz_lockup.png");
+const wordmark = require("../../images/v1_wordmark.png");
 
 type AppHeaderProps = {
   eyebrow?: string;
@@ -19,7 +19,7 @@ export function AppHeader({
   return (
     <View style={styles.header}>
       <View style={styles.logoArea}>
-        <Image source={horizLockup} style={styles.lockup} resizeMode="contain" />
+        <Image source={wordmark} style={styles.lockup} resizeMode="contain" />
         <Text style={styles.eyebrow}>{eyebrow}</Text>
       </View>
 
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   lockup: {
     height: 28,
-    width: 120,
+    width: 140,
   },
   eyebrow: {
     marginTop: 4,
