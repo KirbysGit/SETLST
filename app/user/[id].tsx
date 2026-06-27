@@ -1,8 +1,9 @@
-import { ActivityIndicator, StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { PublicProfileView } from "../../components/profile/PublicProfileView";
+import { PublicProfileSkeleton } from "../../components/skeletons/PublicProfileSkeleton";
 import { theme } from "../../constants/theme";
 
 export default function UserProfileScreen() {
@@ -11,11 +12,7 @@ export default function UserProfileScreen() {
   const { profile, presence, loading } = usePublicProfile(id);
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator color={theme.colors.purple} size="large" />
-      </View>
-    );
+    return <PublicProfileSkeleton />;
   }
 
   if (!profile) {
@@ -33,7 +30,6 @@ export default function UserProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Back nav */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backText}>← Back</Text>
       </TouchableOpacity>
@@ -57,12 +53,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-  },
-  loader: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: "center",
-    justifyContent: "center",
   },
   backButton: {
     paddingHorizontal: 20,

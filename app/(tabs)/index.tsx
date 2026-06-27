@@ -1,4 +1,4 @@
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppHeader } from "../../components/layout/AppHeader";
@@ -7,6 +7,7 @@ import { GymPulse } from "../../components/home/GymPulse";
 import { HomeBackground } from "../../components/home/HomeBackground";
 import { PeopleStrip } from "../../components/home/PeopleStrip";
 import { YourTrackBar } from "../../components/home/YourTrackBar";
+import { HomeSkeleton } from "../../components/skeletons/HomeSkeleton";
 import { theme } from "../../constants/theme";
 import { useGymPresence } from "../../hooks/useGymPresence";
 
@@ -14,15 +15,7 @@ export default function HomeScreen() {
   const { own, others, gym, loading, refreshing, refresh, cooldownSeconds } = useGymPresence();
 
   if (loading) {
-    return (
-      <View style={styles.root}>
-        <HomeBackground />
-        <View style={styles.loader}>
-          <ActivityIndicator color={theme.colors.purple} size="large" />
-          <Text style={styles.loaderText}>Syncing your gym feed…</Text>
-        </View>
-      </View>
-    );
+    return <HomeSkeleton />;
   }
 
   return (
@@ -70,17 +63,6 @@ const styles = StyleSheet.create({
   },
   safe: {
     flex: 1,
-  },
-  loader: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing.md,
-  },
-  loaderText: {
-    color: theme.colors.textMuted,
-    fontSize: 13,
-    fontWeight: "600",
   },
   content: {
     paddingHorizontal: theme.spacing.lg,

@@ -19,6 +19,7 @@ import { useSpotify } from "../../contexts/SpotifyContext";
 import { useProfile, UserProfile } from "../../hooks/useProfile";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { PublicProfileView } from "../../components/profile/PublicProfileView";
+import { ProfileSkeleton } from "../../components/skeletons/ProfileSkeleton";
 import { theme } from "../../constants/theme";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -126,11 +127,7 @@ export default function ProfileScreen() {
   }
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator color={theme.colors.purple} size="large" />
-      </View>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!profile) return null;
