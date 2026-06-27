@@ -1,4 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { PulseDot } from "../shared/PulseDot";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { theme } from "../../constants/theme";
 
@@ -13,8 +16,8 @@ export function GymPulse({ own, others, gym }: Props) {
   const activeCount = allRows.filter((r) => r.is_playing).length;
   const pausedCount = allRows.filter((r) => !r.is_playing).length;
   const totalCount = allRows.length;
+  const hasActivity = activeCount > 0;
 
-  // Top artist across all presence rows
   const artistCounts: Record<string, number> = {};
   allRows.forEach((r) => {
     if (!r.artist) return;
@@ -25,10 +28,26 @@ export function GymPulse({ own, others, gym }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Left — live count */}
+      <LinearGradient
+        colors={["#111620F2", "#171D29E8"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {hasActivity && (
+        <LinearGradient
+          colors={["#8B5CF618", "transparent", "#2EF2C310"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.activeSheen}
+          pointerEvents="none"
+        />
+      )}
+
       <View style={styles.section}>
         <View style={styles.liveRow}>
-          <View style={styles.liveDot} />
+          <PulseDot color={theme.colors.purple} size={7} active={hasActivity} />
           <Text style={styles.liveLabel}>Live now</Text>
         </View>
         <Text style={styles.countText}>
@@ -43,7 +62,6 @@ export function GymPulse({ own, others, gym }: Props) {
 
       <View style={styles.divider} />
 
-      {/* Right — top artist */}
       <View style={styles.section}>
         <Text style={styles.liveLabel}>Trending artist</Text>
         {topArtist ? (
@@ -66,13 +84,21 @@ export function GymPulse({ own, others, gym }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.lg,
     gap: theme.spacing.md,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  activeSheen: {
+    ...StyleSheet.absoluteFillObject,
   },
   section: {
     flex: 1,
@@ -81,14 +107,8 @@ const styles = StyleSheet.create({
   liveRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     marginBottom: 2,
-  },
-  liveDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: theme.colors.purple,
   },
   liveLabel: {
     color: theme.colors.textMuted,
@@ -111,5 +131,6 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: theme.colors.border,
     marginVertical: 2,
+    opacity: 0.8,
   },
 });

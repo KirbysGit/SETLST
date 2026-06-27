@@ -1,4 +1,9 @@
 import { Image, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { AnimatedWaveform } from "../shared/AnimatedWaveform";
+import { InteractiveSurface } from "../shared/InteractiveSurface";
+import { PulseDot } from "../shared/PulseDot";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { theme } from "../../constants/theme";
 
@@ -7,49 +12,52 @@ interface Props {
   gym: string | null;
 }
 
-function Waveform({ active }: { active: boolean }) {
-  const bars = [10, 18, 14, 22, 16, 26, 20, 14, 18, 12];
-  return (
-    <View style={styles.waveform}>
-      {bars.map((h, i) => (
-        <View
-          key={i}
-          style={[
-            styles.waveBar,
-            {
-              height: active ? h : 4,
-              backgroundColor: active ? theme.colors.purple : theme.colors.border,
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
-}
-
 export function YourTrackBar({ presence, gym }: Props) {
+  const isPlaying = !!presence?.is_playing;
+
   return (
-    <View style={styles.container}>
-      {/* Gym label */}
+    <InteractiveSurface
+      glowColor={theme.colors.purple}
+      disabled
+      style={[
+        styles.container,
+        isPlaying && styles.containerActive,
+      ]}
+    >
+      {isPlaying && (
+        <LinearGradient
+          colors={["#8B5CF622", "#2EF2C308", "transparent"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glowOverlay}
+          pointerEvents="none"
+        />
+      )}
+
       <View style={styles.gymRow}>
-        <View style={[styles.dot, presence?.is_playing && styles.dotActive]} />
+        <PulseDot color={theme.colors.purple} size={7} active={isPlaying} />
         <Text style={styles.gymText} numberOfLines={1}>
           {gym ?? "No gym set"} · You
         </Text>
+        {isPlaying && (
+          <View style={styles.liveBadge}>
+            <Text style={styles.liveBadgeText}>LIVE</Text>
+          </View>
+        )}
       </View>
 
       {presence ? (
         <View style={styles.trackRow}>
-          {/* Album art */}
-          {presence.album_art ? (
-            <Image source={{ uri: presence.album_art }} style={styles.albumArt} />
-          ) : (
-            <View style={[styles.albumArt, styles.albumArtFallback]}>
-              <Text style={styles.albumArtText}>{presence.track_name[0]}</Text>
-            </View>
-          )}
+          <View style={[styles.albumWrap, isPlaying && styles.albumWrapActive]}>
+            {presence.album_art ? (
+              <Image source={{ uri: presence.album_art }} style={styles.albumArt} />
+            ) : (
+              <View style={[styles.albumArt, styles.albumArtFallback]}>
+                <Text style={styles.albumArtText}>{presence.track_name[0]}</Text>
+              </View>
+            )}
+          </View>
 
-          {/* Track info */}
           <View style={styles.trackInfo}>
             <Text style={styles.trackName} numberOfLines={1}>
               {presence.track_name}
@@ -59,10 +67,9 @@ export function YourTrackBar({ presence, gym }: Props) {
             </Text>
           </View>
 
-          {/* Waveform / paused */}
           <View style={styles.statusArea}>
-            {presence.is_playing ? (
-              <Waveform active />
+            {isPlaying ? (
+              <AnimatedWaveform active color={theme.colors.purple} />
             ) : (
               <View style={styles.pausedBadge}>
                 <Text style={styles.pausedText}>paused</Text>
@@ -75,45 +82,75 @@ export function YourTrackBar({ presence, gym }: Props) {
           <Text style={styles.emptyText}>Open Spotify to share your track</Text>
         </View>
       )}
-    </View>
+    </InteractiveSurface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface + "EE",
+    borderRadius: theme.radius.lg,
     borderWidth: 1.5,
-    borderColor: theme.colors.purple + "60",
+    borderColor: theme.colors.purple + "45",
     padding: theme.spacing.md,
     marginBottom: theme.spacing.lg,
     gap: 10,
+    shadowColor: theme.colors.purple,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 4,
+  },
+  containerActive: {
+    borderColor: theme.colors.purple + "90",
+    shadowOpacity: 0.22,
+  },
+  glowOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: theme.radius.lg,
   },
   gymRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-  },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: theme.colors.border,
-  },
-  dotActive: {
-    backgroundColor: theme.colors.purple,
+    gap: 8,
   },
   gymText: {
+    flex: 1,
     color: theme.colors.textMuted,
     fontSize: 11,
     fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: 1,
   },
+  liveBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.purple + "22",
+    borderWidth: 1,
+    borderColor: theme.colors.purple + "55",
+  },
+  liveBadgeText: {
+    color: theme.colors.purple,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 1.2,
+  },
   trackRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+  },
+  albumWrap: {
+    borderRadius: 10,
+    padding: 2,
+  },
+  albumWrapActive: {
+    backgroundColor: theme.colors.purple + "35",
+    shadowColor: theme.colors.purple,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
   },
   albumArt: {
     width: 48,
@@ -140,7 +177,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 15,
     fontWeight: "800",
-    letterSpacing: 0,
   },
   artistName: {
     color: theme.colors.textMuted,
@@ -151,17 +187,6 @@ const styles = StyleSheet.create({
   statusArea: {
     alignItems: "flex-end",
     justifyContent: "center",
-  },
-  waveform: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-    height: 28,
-  },
-  waveBar: {
-    width: 3,
-    borderRadius: 2,
-    opacity: 0.9,
   },
   pausedBadge: {
     paddingHorizontal: 8,
