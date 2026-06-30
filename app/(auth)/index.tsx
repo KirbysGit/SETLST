@@ -11,7 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "../../constants/theme";
 
-const stacked = require("../../images/v1_stacked.png");
+const appIcon = require("../../images/v1_app_icon.png");
+const horizLockup = require("../../images/v1_horiz_lockup.png");
 
 const { width } = Dimensions.get("window");
 
@@ -39,7 +40,8 @@ export default function Landing() {
     <SafeAreaView style={styles.container}>
       {/* Logo */}
       <View style={styles.logoArea}>
-        <Image source={stacked} style={styles.stacked} resizeMode="contain" />
+        <Image source={appIcon} style={styles.appIcon} resizeMode="contain" />
+        <Image source={horizLockup} style={styles.horizLockup} resizeMode="contain" />
       </View>
 
       {/* Tagline */}
@@ -103,9 +105,13 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 16,
   },
-  stacked: {
-    width: 140,
-    height: 140,
+  appIcon: {
+    width: 72,
+    height: 72,
+  },
+  horizLockup: {
+    height: 22,
+    width: 130,
   },
   taglineArea: {
     alignItems: "center",

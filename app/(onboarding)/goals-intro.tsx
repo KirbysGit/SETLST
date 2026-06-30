@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../../constants/theme";
 
-const wordmark = require("../../images/v1_wordmark.png");
+const wordmark = require("../../images/v1_wordmark_white.png");
 
 export default function GoalsIntro() {
   const router = useRouter();

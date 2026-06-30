@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 
 import { theme } from "../../constants/theme";
 
-const wordmark = require("../../images/v1_wordmark.png");
+const wordmark = require("../../images/v1_wordmark_white.png");
 
 type AppHeaderProps = {
   eyebrow?: string;
