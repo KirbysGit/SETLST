@@ -1,5 +1,5 @@
+import { useState } from "react";
 import {
-  ActivityIndicator,
   Image,
   RefreshControl,
   ScrollView,
@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFriends, FriendRow } from "../../hooks/useFriends";
+import { FriendsSkeleton } from "../../components/skeletons/FriendsSkeleton";
 import { theme } from "../../constants/theme";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -129,9 +130,12 @@ export default function FriendsScreen() {
   const playing = friends.filter((f) => f.is_playing);
   const idle = friends.filter((f) => !f.is_playing);
 
+  if (loading) {
+    return <FriendsSkeleton />;
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Friends</Text>
         {friends.length > 0 && (
@@ -141,22 +145,17 @@ export default function FriendsScreen() {
         )}
       </View>
 
-      {loading ? (
-        <View style={styles.loader}>
-          <ActivityIndicator color={theme.colors.purple} />
-        </View>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.colors.purple}
-            />
-          }
-        >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.purple}
+          />
+        }
+      >
           {friends.length === 0 ? (
             <EmptyState />
           ) : (
@@ -179,15 +178,10 @@ export default function FriendsScreen() {
             </>
           )}
         </ScrollView>
-      )}
     </SafeAreaView>
   );
 }
 
-// ─── Need useState import ─────────────────────────────────────────────────────
-import { useState } from "react";
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -218,11 +212,6 @@ const styles = StyleSheet.create({
     color: theme.colors.purple,
     fontSize: 13,
     fontWeight: "800",
-  },
-  loader: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
   scroll: {
     paddingHorizontal: 20,

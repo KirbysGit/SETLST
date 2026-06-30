@@ -1,56 +1,91 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { AnimatedWaveform } from "../shared/AnimatedWaveform";
+import { InteractiveSurface } from "../shared/InteractiveSurface";
+import { PulseDot } from "../shared/PulseDot";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { theme } from "../../constants/theme";
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
 export function EmptyGymState() {
   return (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyFace}>:(</Text>
+    <InteractiveSurface
+      glowColor={theme.colors.teal}
+      style={styles.emptyContainer}
+      pressedStyle={styles.emptyPressed}
+    >
+      <LinearGradient
+        colors={["#8B5CF612", "#2EF2C308"]}
+        style={styles.emptyGlow}
+        pointerEvents="none"
+      />
+      <Text style={styles.emptyEmoji}>♪</Text>
       <Text style={styles.emptyTitle}>No other Setlsters here yet</Text>
       <Text style={styles.emptySubtitle}>
         Invite friends to join so you can see what everyone's lifting to.
       </Text>
       <View style={styles.inviteChip}>
-        <Text style={styles.inviteText}>✉  Invite friends</Text>
+        <Text style={styles.inviteText}>Invite friends</Text>
       </View>
-    </View>
+    </InteractiveSurface>
   );
 }
 
-// ─── Single feed row ──────────────────────────────────────────────────────────
 function FeedRow({ row }: { row: PresenceRow }) {
   const initials = row.display_name?.slice(0, 2).toUpperCase() ?? "??";
   const router = useRouter();
+  const isPlaying = row.is_playing;
 
   return (
-    <TouchableOpacity
-      style={[styles.row, !row.is_playing && styles.rowPaused]}
+    <InteractiveSurface
       onPress={() => router.push(`/user/${row.user_id}`)}
-      activeOpacity={0.75}
+      glowColor={isPlaying ? theme.colors.purple : theme.colors.blue}
+      style={[styles.row, !isPlaying && styles.rowPaused]}
+      pressedStyle={styles.rowPressed}
     >
-      {/* Avatar */}
-      <View style={[styles.avatar, !row.is_playing && styles.avatarPaused]}>
+      {isPlaying && (
+        <LinearGradient
+          colors={["#8B5CF614", "transparent"]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.rowSheen}
+          pointerEvents="none"
+        />
+      )}
+
+      <View style={[styles.avatar, !isPlaying && styles.avatarPaused]}>
         <Text style={styles.avatarText}>{initials}</Text>
-        <View style={[styles.statusDot, row.is_playing ? styles.statusDotActive : styles.statusDotPaused]} />
+        <View
+          style={[
+            styles.statusDot,
+            isPlaying ? styles.statusDotActive : styles.statusDotPaused,
+          ]}
+        />
       </View>
 
-      {/* Album art */}
       {row.album_art ? (
         <Image
           source={{ uri: row.album_art }}
-          style={[styles.albumArt, !row.is_playing && styles.albumArtPaused]}
+          style={[styles.albumArt, !isPlaying && styles.albumArtPaused]}
         />
       ) : (
-        <View style={[styles.albumArt, styles.albumArtFallback, !row.is_playing && styles.albumArtPaused]}>
+        <View
+          style={[
+            styles.albumArt,
+            styles.albumArtFallback,
+            !isPlaying && styles.albumArtPaused,
+          ]}
+        >
           <Text style={styles.albumFallbackText}>{row.track_name?.[0] ?? "♪"}</Text>
         </View>
       )}
 
-      {/* Track info */}
       <View style={styles.info}>
-        <Text style={[styles.trackName, !row.is_playing && styles.textPaused]} numberOfLines={1}>
+        <Text
+          style={[styles.trackName, !isPlaying && styles.textPaused]}
+          numberOfLines={1}
+        >
           {row.track_name}
         </Text>
         <Text style={styles.artistName} numberOfLines={1}>
@@ -58,35 +93,24 @@ function FeedRow({ row }: { row: PresenceRow }) {
         </Text>
       </View>
 
-      {/* Status */}
-      {row.is_playing ? (
-        <Waveform />
+      {isPlaying ? (
+        <AnimatedWaveform active color={theme.colors.purple} />
       ) : (
         <View style={styles.pausedBadge}>
           <Text style={styles.pausedText}>paused</Text>
         </View>
       )}
-    </TouchableOpacity>
+    </InteractiveSurface>
   );
 }
 
-function Waveform() {
-  const bars = [8, 16, 12, 20, 14, 24, 18, 12];
-  return (
-    <View style={styles.waveform}>
-      {bars.map((h, i) => (
-        <View key={i} style={[styles.waveBar, { height: h }]} />
-      ))}
-    </View>
-  );
-}
-
-// ─── Full feed ────────────────────────────────────────────────────────────────
 interface Props {
   others: PresenceRow[];
 }
 
 export function GymFeed({ others }: Props) {
+  const activeCount = others.filter((r) => r.is_playing).length;
+
   return (
     <View style={styles.feed}>
       <View style={styles.header}>
@@ -95,7 +119,7 @@ export function GymFeed({ others }: Props) {
           <Text style={styles.title}>Fellow Setlsters</Text>
         </View>
         <View style={styles.countBadge}>
-          <View style={styles.countDot} />
+          <PulseDot color={theme.colors.purple} size={6} active={activeCount > 0} />
           <Text style={styles.countText}>{others.length} active</Text>
         </View>
       </View>
@@ -139,19 +163,13 @@ const styles = StyleSheet.create({
   countBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    backgroundColor: theme.colors.surface,
+    gap: 6,
+    backgroundColor: theme.colors.surface + "DD",
     borderRadius: theme.radius.pill,
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderWidth: 1,
     borderColor: theme.colors.border,
-  },
-  countDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: theme.colors.purple,
   },
   countText: {
     color: theme.colors.textMuted,
@@ -165,14 +183,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface + "EE",
+    borderRadius: theme.radius.lg,
     padding: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    overflow: "hidden",
   },
   rowPaused: {
-    opacity: 0.55,
+    opacity: 0.72,
+  },
+  rowPressed: {
+    backgroundColor: theme.colors.elevated,
+  },
+  rowSheen: {
+    ...StyleSheet.absoluteFillObject,
   },
   avatar: {
     width: 38,
@@ -247,18 +272,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginTop: 2,
   },
-  waveform: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-    height: 26,
-  },
-  waveBar: {
-    width: 3,
-    borderRadius: 2,
-    backgroundColor: theme.colors.purple,
-    opacity: 0.85,
-  },
   pausedBadge: {
     paddingHorizontal: 7,
     paddingVertical: 3,
@@ -272,15 +285,27 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
   },
-  // ── Empty state ──────────────────────────────────────────────────────────
   emptyContainer: {
     alignItems: "center",
-    paddingVertical: 40,
+    paddingVertical: 36,
+    paddingHorizontal: 24,
     gap: 10,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderStyle: "dashed",
+    backgroundColor: theme.colors.surface + "88",
+    overflow: "hidden",
   },
-  emptyFace: {
-    fontSize: 40,
-    color: theme.colors.textMuted,
+  emptyPressed: {
+    borderColor: theme.colors.teal + "80",
+  },
+  emptyGlow: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  emptyEmoji: {
+    fontSize: 36,
+    color: theme.colors.purple,
     fontWeight: "900",
   },
   emptyTitle: {
@@ -304,7 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     borderWidth: 1.5,
     borderColor: theme.colors.purple,
-    backgroundColor: theme.colors.purple + "15",
+    backgroundColor: theme.colors.purple + "18",
   },
   inviteText: {
     color: theme.colors.purple,
