@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Image,
   RefreshControl,
@@ -8,18 +8,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFriends, FriendRow } from "../../hooks/useFriends";
+import { useFriendRequests, RequestRow } from "../../hooks/useFriendRequests";
 import { FriendsSkeleton } from "../../components/skeletons/FriendsSkeleton";
 import { theme } from "../../constants/theme";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
-function Avatar({ row }: { row: FriendRow }) {
-  const initials = row.display_name.slice(0, 2).toUpperCase();
-  if (row.avatar_url) {
-    return <Image source={{ uri: row.avatar_url }} style={styles.avatar} />;
+function Avatar({ display_name, avatar_url }: { display_name: string; avatar_url: string | null }) {
+  const initials = display_name.slice(0, 2).toUpperCase();
+  if (avatar_url) {
+    return <Image source={{ uri: avatar_url }} style={styles.avatar} />;
   }
   return (
     <LinearGradient
@@ -30,6 +31,56 @@ function Avatar({ row }: { row: FriendRow }) {
     >
       <Text style={styles.avatarInitials}>{initials}</Text>
     </LinearGradient>
+  );
+}
+
+// ─── Request row ──────────────────────────────────────────────────────────────
+function RequestCard({
+  row,
+  onAccept,
+  onDecline,
+}: {
+  row: RequestRow;
+  onAccept: () => void;
+  onDecline: () => void;
+}) {
+  const router = useRouter();
+
+  return (
+    <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.requestMain}
+        onPress={() => router.push(`/user/${row.requester_id}`)}
+        activeOpacity={0.75}
+      >
+        <Avatar display_name={row.display_name} avatar_url={row.avatar_url} />
+        <View style={styles.info}>
+          <View style={styles.nameRow}>
+            <Text style={styles.displayName} numberOfLines={1}>{row.display_name}</Text>
+            {row.username && <Text style={styles.username}>@{row.username}</Text>}
+          </View>
+          <Text style={styles.gymText} numberOfLines={1}>
+            {row.home_gym ? `📍 ${row.home_gym}` : "Wants to connect"}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <View style={styles.requestActions}>
+        <TouchableOpacity style={styles.acceptButton} onPress={onAccept} activeOpacity={0.85}>
+          <LinearGradient
+            colors={["#2EF2C3", "#8B5CF6"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.acceptGradient}
+          >
+            <Text style={styles.acceptText}>Accept</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.declineButton} onPress={onDecline} activeOpacity={0.8}>
+          <Text style={styles.declineText}>Decline</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -45,7 +96,7 @@ function FriendCard({ row }: { row: FriendRow }) {
     >
       {/* Avatar with status dot */}
       <View style={styles.avatarWrap}>
-        <Avatar row={row} />
+        <Avatar display_name={row.display_name} avatar_url={row.avatar_url} />
         <View style={[
           styles.statusDot,
           row.is_playing ? styles.statusDotActive : styles.statusDotIdle,
@@ -119,12 +170,25 @@ function EmptyState() {
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function FriendsScreen() {
   const { friends, loading, reload } = useFriends();
+  const { requests, reload: reloadRequests, accept, decline } = useFriendRequests();
   const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+      reloadRequests();
+    }, [])
+  );
 
   async function onRefresh() {
     setRefreshing(true);
-    await reload();
+    await Promise.all([reload(), reloadRequests()]);
     setRefreshing(false);
+  }
+
+  async function onAccept(friendshipId: string) {
+    await accept(friendshipId);
+    await reload();
   }
 
   const playing = friends.filter((f) => f.is_playing);
@@ -156,7 +220,22 @@ export default function FriendsScreen() {
           />
         }
       >
-          {friends.length === 0 ? (
+          {/* Incoming requests */}
+          {requests.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>✋  Requests · {requests.length}</Text>
+              {requests.map((r) => (
+                <RequestCard
+                  key={r.friendship_id}
+                  row={r}
+                  onAccept={() => onAccept(r.friendship_id)}
+                  onDecline={() => decline(r.friendship_id)}
+                />
+              ))}
+            </View>
+          )}
+
+          {friends.length === 0 && requests.length === 0 ? (
             <EmptyState />
           ) : (
             <>
@@ -341,6 +420,46 @@ const styles = StyleSheet.create({
   },
   messageIcon: {
     fontSize: 15,
+  },
+
+  // Request card
+  requestMain: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+    minWidth: 0,
+  },
+  requestActions: {
+    alignItems: "stretch",
+    gap: 6,
+  },
+  acceptButton: {
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  acceptGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  acceptText: {
+    color: theme.colors.background,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  declineButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: "center",
+  },
+  declineText: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: "700",
   },
 
   // Empty

@@ -1,34 +1,47 @@
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import {
-  Dimensions,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AnimatedWaveform } from "../../components/shared/AnimatedWaveform";
 import { theme } from "../../constants/theme";
 
-const appIcon = require("../../images/v1_app_icon.png");
-const horizLockup = require("../../images/v1_horiz_lockup.png");
+const stacked = require("../../images/v1_stacked.png");
 
-const { width } = Dimensions.get("window");
+const BRAND_GRADIENT = ["#2EF2C3", "#8B5CF6"] as const;
 
-function SoundWave() {
-  const bars = [18, 32, 52, 44, 64, 80, 56, 72, 48, 88, 64, 76, 52, 68, 44, 56, 72, 40, 60, 48, 36, 52, 68, 44, 56, 40, 28];
+// Faux gym feed used purely as a product preview on the landing screen.
+const PREVIEW = [
+  { name: "Jordan Blake", initials: "JB", track: "Blinding Lights", artist: "The Weeknd" },
+  { name: "Maya Chen", initials: "MC", track: "POWER", artist: "Kanye West" },
+];
+
+function PreviewRow({ person }: { person: (typeof PREVIEW)[number] }) {
   return (
-    <View style={styles.waveContainer}>
-      {bars.map((h, i) => (
-        <LinearGradient
-          key={i}
-          colors={["#2EF2C3", "#8B5CF6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.bar, { height: h }]}
-        />
-      ))}
+    <View style={styles.previewRow}>
+      <LinearGradient
+        colors={BRAND_GRADIENT}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.previewAvatar}
+      >
+        <Text style={styles.previewInitials}>{person.initials}</Text>
+      </LinearGradient>
+
+      <View style={styles.previewInfo}>
+        <Text style={styles.previewName} numberOfLines={1}>{person.name}</Text>
+        <Text style={styles.previewTrack} numberOfLines={1}>
+          {person.track} · {person.artist}
+        </Text>
+      </View>
+
+      <AnimatedWaveform active color={theme.colors.teal} />
     </View>
   );
 }
@@ -38,32 +51,71 @@ export default function Landing() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Logo */}
-      <View style={styles.logoArea}>
-        <Image source={appIcon} style={styles.appIcon} resizeMode="contain" />
-        <Image source={horizLockup} style={styles.horizLockup} resizeMode="contain" />
-      </View>
+      {/* Ambient background glows */}
+      <LinearGradient
+        colors={[theme.colors.teal + "22", "transparent"]}
+        style={[styles.glow, styles.glowTop]}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={["transparent", theme.colors.purple + "26"]}
+        style={[styles.glow, styles.glowBottom]}
+        pointerEvents="none"
+      />
 
-      {/* Tagline */}
-      <View style={styles.taglineArea}>
-        <Text style={styles.tagline}>GYM RHYTHM.</Text>
-        <LinearGradient
-          colors={["#2EF2C3", "#8B5CF6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.taglineGradientBox}
-        >
-          <Text style={styles.taglineGradient}>REAL CONNECTION.</Text>
-        </LinearGradient>
-        <Text style={styles.subtitle}>
-          See who's at your gym.{"\n"}Discover their vibe.{"\n"}Connect through the music.
-        </Text>
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Brand */}
+        <View style={styles.logoArea}>
+          <Image source={stacked} style={styles.stacked} resizeMode="contain" />
+        </View>
 
-      {/* Sound wave */}
-      <SoundWave />
+        {/* Tagline */}
+        <View style={styles.taglineArea}>
+          <Text style={styles.tagline}>GYM RHYTHM.</Text>
+          <LinearGradient
+            colors={BRAND_GRADIENT}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.taglineGradientBox}
+          >
+            <Text style={styles.taglineGradient}>REAL CONNECTION.</Text>
+          </LinearGradient>
+          <Text style={styles.subtitle}>
+            See who's at your gym. Discover their vibe.{"\n"}Connect through the music.
+          </Text>
+        </View>
 
-      {/* Actions */}
+        {/* Product preview */}
+        <View style={styles.previewCard}>
+          <View style={styles.previewHeader}>
+            <View style={styles.liveDot} />
+            <Text style={styles.previewHeaderText}>LIVE AT CRUNCH FITNESS</Text>
+            <Text style={styles.previewCount}>12 active</Text>
+          </View>
+          {PREVIEW.map((p) => (
+            <PreviewRow key={p.name} person={p} />
+          ))}
+        </View>
+
+        {/* Feature pills */}
+        <View style={styles.pills}>
+          {[
+            { icon: "📍", label: "Live presence" },
+            { icon: "🎧", label: "Music match" },
+            { icon: "🤝", label: "Gym friends" },
+          ].map((f) => (
+            <View key={f.label} style={styles.pill}>
+              <Text style={styles.pillIcon}>{f.icon}</Text>
+              <Text style={styles.pillText}>{f.label}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Actions pinned at the bottom */}
       <View style={styles.actions}>
         <TouchableOpacity
           style={styles.getStartedWrapper}
@@ -71,12 +123,12 @@ export default function Landing() {
           activeOpacity={0.85}
         >
           <LinearGradient
-            colors={["#2EF2C3", "#8B5CF6"]}
+            colors={BRAND_GRADIENT}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.getStartedButton}
           >
-            <Text style={styles.getStartedText}>GET STARTED</Text>
+            <Text style={styles.getStartedText}>GET STARTED  →</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -95,77 +147,177 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 32,
     paddingHorizontal: 24,
   },
+  glow: {
+    position: "absolute",
+    left: -60,
+    right: -60,
+    height: 320,
+  },
+  glowTop: {
+    top: -80,
+  },
+  glowBottom: {
+    bottom: -40,
+  },
+  scroll: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
+
+  // Brand
   logoArea: {
     alignItems: "center",
-    gap: 10,
-    marginTop: 16,
   },
-  appIcon: {
-    width: 72,
-    height: 72,
+  stacked: {
+    width: 132,
+    height: 132,
   },
-  horizLockup: {
-    height: 22,
-    width: 130,
-  },
+
+  // Tagline
   taglineArea: {
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   tagline: {
     color: theme.colors.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "800",
     letterSpacing: 1,
   },
   taglineGradientBox: {
     borderRadius: 4,
-    paddingHorizontal: 2,
+    paddingHorizontal: 4,
   },
   taglineGradient: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "800",
     letterSpacing: 1,
     color: "#000",
   },
   subtitle: {
     color: theme.colors.textMuted,
-    fontSize: 15,
+    fontSize: 14,
     textAlign: "center",
-    lineHeight: 24,
-    marginTop: 8,
+    lineHeight: 22,
+    marginTop: 6,
   },
-  waveContainer: {
+
+  // Preview card
+  previewCard: {
+    width: "100%",
+    backgroundColor: theme.colors.surface,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 14,
+    gap: 12,
+  },
+  previewHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
-    width: width - 48,
+    gap: 7,
+  },
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: theme.colors.teal,
+  },
+  previewHeaderText: {
+    flex: 1,
+    color: theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+  },
+  previewCount: {
+    color: theme.colors.teal,
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  previewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  previewAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
     justifyContent: "center",
   },
-  bar: {
-    width: 5,
-    borderRadius: 3,
-    opacity: 0.85,
+  previewInitials: {
+    color: theme.colors.background,
+    fontSize: 14,
+    fontWeight: "900",
   },
+  previewInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  previewName: {
+    color: theme.colors.text,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  previewTrack: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+
+  // Feature pills
+  pills: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  pillIcon: {
+    fontSize: 12,
+  },
+  pillText: {
+    color: theme.colors.text,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  // Actions
   actions: {
     width: "100%",
     alignItems: "center",
-    gap: 16,
+    gap: 14,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   getStartedWrapper: {
     width: "100%",
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: "hidden",
   },
   getStartedButton: {
-    paddingVertical: 16,
+    paddingVertical: 17,
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 14,
   },
   getStartedText: {
     color: theme.colors.background,

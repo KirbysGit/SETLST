@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { UserProfile } from "../../hooks/useProfile";
 import { PresenceRow } from "../../hooks/useGymPresence";
+import { Relationship } from "../../lib/friends";
 import { theme } from "../../constants/theme";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -112,16 +113,20 @@ interface Props {
   profile: UserProfile;
   presence: PresenceRow | null;
   isOwnProfile?: boolean;
+  relationship?: Relationship;
   onWave?: () => void;
   onConnect?: () => void;
+  onAccept?: () => void;
 }
 
 export function PublicProfileView({
   profile,
   presence,
   isOwnProfile = false,
+  relationship = "none",
   onWave,
   onConnect,
+  onAccept,
 }: Props) {
   const privacy = profile.privacy ?? {
     goals_public: true,
@@ -173,16 +178,44 @@ export function PublicProfileView({
             <TouchableOpacity style={styles.waveButton} onPress={onWave} activeOpacity={0.8}>
               <Text style={styles.waveText}>👋  Wave</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.connectButton} onPress={onConnect} activeOpacity={0.8}>
-              <LinearGradient
-                colors={["#2EF2C3", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.connectGradient}
-              >
-                <Text style={styles.connectText}>Connect</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+
+            {relationship === "none" && (
+              <TouchableOpacity style={styles.connectButton} onPress={onConnect} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#2EF2C3", "#8B5CF6"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.connectGradient}
+                >
+                  <Text style={styles.connectText}>Connect</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
+            {relationship === "incoming" && (
+              <TouchableOpacity style={styles.connectButton} onPress={onAccept} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["#2EF2C3", "#8B5CF6"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.connectGradient}
+                >
+                  <Text style={styles.connectText}>Accept</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
+            {relationship === "outgoing" && (
+              <View style={[styles.statusPill, styles.statusPillMuted]}>
+                <Text style={styles.statusPillText}>Requested</Text>
+              </View>
+            )}
+
+            {relationship === "friends" && (
+              <View style={[styles.statusPill, styles.statusPillFriends]}>
+                <Text style={styles.statusPillFriendsText}>✓ Friends</Text>
+              </View>
+            )}
           </View>
         )}
 
@@ -322,6 +355,32 @@ const styles = StyleSheet.create({
   },
   connectText: {
     color: theme.colors.background,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  statusPill: {
+    paddingHorizontal: 24,
+    paddingVertical: 11,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusPillMuted: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+  },
+  statusPillText: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  statusPillFriends: {
+    backgroundColor: theme.colors.purple + "15",
+    borderColor: theme.colors.purple + "40",
+  },
+  statusPillFriendsText: {
+    color: theme.colors.purple,
     fontSize: 14,
     fontWeight: "800",
   },

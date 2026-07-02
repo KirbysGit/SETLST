@@ -1,15 +1,35 @@
-import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { PublicProfileView } from "../../components/profile/PublicProfileView";
 import { PublicProfileSkeleton } from "../../components/skeletons/PublicProfileSkeleton";
+import { sendFriendRequest, acceptFriendRequest } from "../../lib/friends";
 import { theme } from "../../constants/theme";
 
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { profile, presence, loading } = usePublicProfile(id);
+  const { profile, presence, relationship, friendshipId, loading, reload } = usePublicProfile(id);
+
+  async function handleConnect() {
+    try {
+      await sendFriendRequest(id);
+      await reload();
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Could not send request.");
+    }
+  }
+
+  async function handleAccept() {
+    if (!friendshipId) return;
+    try {
+      await acceptFriendRequest(friendshipId);
+      await reload();
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Could not accept request.");
+    }
+  }
 
   if (loading) {
     return <PublicProfileSkeleton />;
@@ -38,12 +58,12 @@ export default function UserProfileScreen() {
         profile={profile}
         presence={presence}
         isOwnProfile={false}
+        relationship={relationship}
         onWave={() => {
-          // TODO: wave action
+          // Wave is a V2 feature (push-notification gated) — no-op for now.
         }}
-        onConnect={() => {
-          // TODO: connect action
-        }}
+        onConnect={handleConnect}
+        onAccept={handleAccept}
       />
     </SafeAreaView>
   );
