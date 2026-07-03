@@ -6,6 +6,13 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "backgroundColor": "#070A0F",
+    "icon": "./images/v1_app_icon.png",
+    "splash": {
+      "image": "./images/v1_stacked.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#070A0F"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
@@ -13,7 +20,11 @@
     },
     "android": {
       "package": "com.setlst.app",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./images/v1_app_icon.png",
+        "backgroundColor": "#070A0F"
+      }
     },
     "plugins": [
       "expo-router",
