@@ -84,6 +84,7 @@ export default function RootLayout() {
           <Stack.Screen name="(onboarding)" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="user/[id]" />
+          <Stack.Screen name="messages/[id]" />
           <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         </Stack>
       </SpotifyProvider>

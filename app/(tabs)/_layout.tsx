@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
+import { useUnreadCount } from "../../hooks/useUnreadCount";
 import { theme } from "../../constants/theme";
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
@@ -20,6 +21,7 @@ function TabIcon({
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const unread = useUnreadCount();
   const activeColor = theme.colors.purple;
 
   // Bottom inset handles Android gesture nav bar + iPhone home indicator
@@ -69,6 +71,13 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: "Messages",
+          tabBarBadge: unread > 0 ? (unread > 99 ? "99+" : unread) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: theme.colors.purple,
+            color: theme.colors.white,
+            fontSize: 10,
+            fontWeight: "800",
+          },
           tabBarIcon: ({ color, focused }) => (
             <TabIcon
               name={focused ? "chatbubble" : "chatbubble-outline"}
