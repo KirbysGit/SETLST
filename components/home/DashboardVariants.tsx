@@ -335,20 +335,20 @@ const styles = StyleSheet.create({
   locationIcon: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   locationText: {
     flex: 1,
     color: theme.colors.text,
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   chevron: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   activeChip: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   activeText: {
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   sectionHeader: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   kicker: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 0,
     marginBottom: 4
@@ -393,12 +393,12 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.section,
     lineHeight: 23,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   sectionAction: {
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   cardHeader: {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.section,
     lineHeight: 23,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   mapCard: {
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0,
     marginTop: theme.spacing.md
   },
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.small,
     lineHeight: 17,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     textAlign: "center",
     marginTop: theme.spacing.sm
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 11,
     lineHeight: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 0,
     textAlign: "center"
   },
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
   albumInitial: {
     color: theme.colors.text,
     fontSize: 20,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   musicCopy: {
@@ -591,14 +591,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.body,
     lineHeight: 19,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   musicArtist: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0,
     marginTop: 3
   },
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 34,
     lineHeight: 38,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     marginTop: theme.spacing.lg
   },
@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0
   },
   bars: {
@@ -658,14 +658,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   weekValue: {
     color: theme.colors.text,
     fontSize: 28,
     lineHeight: 33,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     marginTop: theme.spacing.md
   },
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 9,
     lineHeight: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   activityCard: {
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   activityLine: {
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
   activityTime: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   }
 });

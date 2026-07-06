@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   kicker: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 4,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.section,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   strip: {
     gap: 12,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   statusDot: {
     position: "absolute",
@@ -150,19 +150,19 @@ const styles = StyleSheet.create({
   name: {
     color: theme.colors.text,
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textAlign: "center",
     width: "100%",
   },
   track: {
     color: theme.colors.textMuted,
     fontSize: 10,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     width: "100%",
   },
   trackActive: {
     color: theme.colors.purple,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 });

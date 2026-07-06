@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   tagline: {
     color: theme.colors.text,
     fontSize: 26,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 1,
   },
   taglineGradientBox: {
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   taglineGradient: {
     fontSize: 26,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 1,
     color: "#000",
   },
@@ -217,13 +217,13 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: 10,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 1.2,
   },
   previewCount: {
     color: theme.colors.teal,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   previewRow: {
     flexDirection: "row",
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
   previewName: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   previewTrack: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: 2,
   },
 
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   pillText: {
     color: theme.colors.text,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 
   // Actions
@@ -295,6 +295,6 @@ const styles = StyleSheet.create({
   loginLink: {
     color: theme.colors.teal,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

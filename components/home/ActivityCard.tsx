@@ -32,14 +32,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.section,
     lineHeight: 23,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   helper: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0,
     marginTop: 4
   },
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 24,
     lineHeight: 28,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     marginBottom: 3
   },
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
     lineHeight: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   }
 });

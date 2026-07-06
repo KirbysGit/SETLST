@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: 26,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     marginBottom: 4,
   },
   subtitle: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: theme.colors.danger,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     lineHeight: 19,
   },
   submitButton: {
@@ -262,6 +262,6 @@ const styles = StyleSheet.create({
   footerLink: {
     color: theme.colors.teal,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

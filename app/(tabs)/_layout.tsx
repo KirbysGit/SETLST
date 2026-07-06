@@ -1,9 +1,7 @@
 import { Tabs } from "expo-router";
-import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-import { FriendRequestBanner } from "../../components/shared/FriendRequestBanner";
 import { useUnreadCount } from "../../hooks/useUnreadCount";
 import { theme } from "../../constants/theme";
 
@@ -30,10 +28,8 @@ export default function TabLayout() {
   const tabBarHeight = 56 + insets.bottom;
 
   return (
-    <View style={{ flex: 1 }}>
-      <FriendRequestBanner />
-      <Tabs
-        screenOptions={{
+    <Tabs
+      screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: theme.colors.textSubtle,
@@ -47,7 +43,7 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 10,
-          fontWeight: "700",
+          fontFamily: theme.fonts.bold,
           letterSpacing: 0.3,
           marginTop: 2,
         },
@@ -80,7 +76,7 @@ export default function TabLayout() {
             backgroundColor: theme.colors.purple,
             color: theme.colors.white,
             fontSize: 10,
-            fontWeight: "800",
+            fontFamily: theme.fonts.extrabold,
           },
           tabBarIcon: ({ color, focused }) => (
             <TabIcon
@@ -117,7 +113,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      </Tabs>
-    </View>
+    </Tabs>
   );
 }

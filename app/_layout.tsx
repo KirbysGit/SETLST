@@ -2,11 +2,20 @@ import { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Session } from "@supabase/supabase-js";
+import {
+  useFonts,
+  Manrope_400Regular,
+  Manrope_500Medium,
+  Manrope_600SemiBold,
+  Manrope_700Bold,
+  Manrope_800ExtraBold,
+} from "@expo-google-fonts/manrope";
 
 import { theme } from "../constants/theme";
 import { DashboardStyleProvider } from "../contexts/DashboardStyleContext";
 import { SpotifyProvider } from "../contexts/SpotifyContext";
 import { ErrorBoundary } from "../components/shared/ErrorBoundary";
+import { FriendRequestBanner } from "../components/shared/FriendRequestBanner";
 import { supabase } from "../lib/supabase";
 
 function useAuthRedirect(session: Session | null, ready: boolean) {
@@ -55,6 +64,13 @@ function useAuthRedirect(session: Session | null, ready: boolean) {
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const [fontsLoaded] = useFonts({
+    Manrope_400Regular,
+    Manrope_500Medium,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,6 +87,9 @@ export default function RootLayout() {
 
   useAuthRedirect(session, ready);
 
+  // Splash stays visible until fonts are in — avoids a system-font flash
+  if (!fontsLoaded) return null;
+
   return (
     <DashboardStyleProvider>
       <SpotifyProvider>
@@ -79,6 +98,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
+              animation: "slide_from_right",
               contentStyle: { backgroundColor: theme.colors.background },
             }}
           >
@@ -89,6 +109,8 @@ export default function RootLayout() {
             <Stack.Screen name="messages/[id]" />
             <Stack.Screen name="settings" options={{ presentation: "modal" }} />
           </Stack>
+          {/* Keyed by user so the realtime subscription (re)connects on login */}
+          {session && <FriendRequestBanner key={session.user.id} />}
         </ErrorBoundary>
       </SpotifyProvider>
     </DashboardStyleProvider>

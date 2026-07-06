@@ -160,14 +160,14 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: 30,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: -0.5,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   list: {
     flex: 1,
@@ -207,16 +207,16 @@ const styles = StyleSheet.create({
   gymIconText: {
     color: theme.colors.text,
     fontSize: 18,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   gymName: {
     flex: 1,
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   gymNameSelected: {
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     color: theme.colors.text,
   },
   checkmark: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   checkmarkText: {
     color: "#fff",
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   actions: {
     gap: 8,
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   finishText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0.5,
   },
   skipButton: {
@@ -262,6 +262,6 @@ const styles = StyleSheet.create({
   skipText: {
     color: theme.colors.textMuted,
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

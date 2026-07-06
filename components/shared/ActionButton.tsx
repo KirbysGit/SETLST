@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.typography.small,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   primaryLabel: {

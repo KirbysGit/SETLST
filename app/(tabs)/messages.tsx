@@ -15,7 +15,7 @@ import { useConversations, ConversationRow } from "../../hooks/useConversations"
 import { useFriends } from "../../hooks/useFriends";
 import { timeAgo } from "../../lib/time";
 import { Avatar } from "../../components/shared/Avatar";
-import { theme } from "../../constants/theme";
+import { text, theme } from "../../constants/theme";
 
 function ConversationCard({ row }: { row: ConversationRow }) {
   const router = useRouter();
@@ -190,9 +190,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   title: {
-    color: theme.colors.text,
-    fontSize: 28,
-    fontWeight: "900",
+    ...text.pageTitle,
   },
   newChatButton: {
     width: 40,
@@ -228,30 +226,25 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   cardName: {
-    color: theme.colors.text,
-    fontSize: 15,
-    fontWeight: "700",
+    ...text.cardTitle,
   },
   cardNameUnread: {
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   cardPreview: {
-    color: theme.colors.textMuted,
+    ...text.cardSubtitle,
     fontSize: 13,
-    fontWeight: "500",
   },
   cardPreviewUnread: {
     color: theme.colors.text,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   cardMeta: {
     alignItems: "flex-end",
     gap: 6,
   },
   cardTime: {
-    color: theme.colors.textSubtle,
-    fontSize: 12,
-    fontWeight: "600",
+    ...text.caption,
   },
   unreadBadge: {
     minWidth: 20,
@@ -265,7 +258,7 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     color: theme.colors.white,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
 
   // Empty
@@ -280,16 +273,10 @@ const styles = StyleSheet.create({
     fontSize: 48,
   },
   emptyTitle: {
-    color: theme.colors.text,
-    fontSize: 18,
-    fontWeight: "800",
+    ...text.emptyTitle,
   },
   emptySubtitle: {
-    color: theme.colors.textMuted,
-    fontSize: 14,
-    fontWeight: "500",
-    textAlign: "center",
-    lineHeight: 21,
+    ...text.emptySubtitle,
     maxWidth: 280,
   },
 
@@ -317,12 +304,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: theme.colors.text,
     fontSize: 18,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   modalEmpty: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     lineHeight: 21,
     paddingVertical: 16,
   },
@@ -337,13 +324,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   friendName: {
-    color: theme.colors.text,
-    fontSize: 15,
-    fontWeight: "700",
+    ...text.cardTitle,
   },
   friendUsername: {
     color: theme.colors.teal,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

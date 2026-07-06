@@ -113,19 +113,19 @@ const styles = StyleSheet.create({
   liveLabel: {
     color: theme.colors.textMuted,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
   countText: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   subText: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   divider: {
     width: 1,

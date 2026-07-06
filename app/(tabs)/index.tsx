@@ -109,12 +109,12 @@ const styles = StyleSheet.create({
   reconnectTitle: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   reconnectSubtitle: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     lineHeight: 17,
   },
   cooldownRow: {
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   cooldownText: {
     color: theme.colors.textSubtle,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 0.3,
   },
 });

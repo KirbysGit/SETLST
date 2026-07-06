@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 28,
     lineHeight: 34,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     marginBottom: theme.spacing.sm
   },
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.body,
     lineHeight: 22,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0,
     marginBottom: theme.spacing.xl
   },

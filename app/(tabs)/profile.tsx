@@ -22,7 +22,7 @@ import { PublicProfileView } from "../../components/profile/PublicProfileView";
 import { ProfileSkeleton } from "../../components/skeletons/ProfileSkeleton";
 import { Avatar } from "../../components/shared/Avatar";
 import { GYMS } from "../../constants/gyms";
-import { theme } from "../../constants/theme";
+import { text, theme } from "../../constants/theme";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -479,9 +479,7 @@ const styles = StyleSheet.create({
 
   // Page title
   pageTitle: {
-    color: theme.colors.text,
-    fontSize: 28,
-    fontWeight: "900",
+    ...text.pageTitle,
     marginBottom: -8,
   },
 
@@ -514,15 +512,12 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   displayName: {
-    color: theme.colors.text,
-    fontSize: 21,
-    fontWeight: "800",
-    letterSpacing: -0.3,
+    ...text.heroTitle,
   },
   username: {
     color: theme.colors.teal,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   heroChips: {
     flexDirection: "row",
@@ -547,12 +542,12 @@ const styles = StyleSheet.create({
   heroChipText: {
     color: theme.colors.text,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   heroChipCaret: {
     color: theme.colors.purple,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   heroChipSpotifyOn: {
     borderColor: "#1DB95440",
@@ -584,12 +579,12 @@ const styles = StyleSheet.create({
   heroActionPreviewText: {
     color: theme.colors.purple,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   heroActionText: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 
   // Gym picker sheet
@@ -616,18 +611,18 @@ const styles = StyleSheet.create({
   gymSheetTitle: {
     color: theme.colors.text,
     fontSize: 18,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   gymSheetClose: {
     color: theme.colors.textMuted,
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     padding: 4,
   },
   gymSheetSubtitle: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: -6,
   },
   gymSaving: {
@@ -657,21 +652,21 @@ const styles = StyleSheet.create({
   gymOptionIconText: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   gymOptionName: {
     flex: 1,
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   gymOptionNameCurrent: {
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   gymOptionCheck: {
     color: theme.colors.purple,
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   // Modal
   modalSafe: {
@@ -690,7 +685,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   modalClose: {
     paddingHorizontal: 4,
@@ -699,7 +694,7 @@ const styles = StyleSheet.create({
   modalCloseText: {
     color: theme.colors.teal,
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 
   // Sections
@@ -712,11 +707,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    ...text.eyebrow,
   },
   privacyToggle: {
     flexDirection: "row",
@@ -726,7 +717,7 @@ const styles = StyleSheet.create({
   privacyLabel: {
     color: theme.colors.textSubtle,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   privacyLabelPublic: {
     color: theme.colors.teal,
@@ -753,12 +744,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   rowValue: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     maxWidth: "60%",
     textAlign: "right",
   },
@@ -777,7 +768,7 @@ const styles = StyleSheet.create({
   vibeText: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     fontStyle: "italic",
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -786,7 +777,7 @@ const styles = StyleSheet.create({
   openToLabel: {
     color: theme.colors.textMuted,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
     paddingHorizontal: 16,
@@ -811,7 +802,7 @@ const styles = StyleSheet.create({
   chipText: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   emptyField: {
     color: theme.colors.textSubtle,
@@ -839,17 +830,17 @@ const styles = StyleSheet.create({
   statValue: {
     color: theme.colors.text,
     fontSize: 24,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   statUnit: {
     color: theme.colors.textMuted,
     fontSize: 10,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   statLabel: {
     color: theme.colors.textSubtle,
     fontSize: 10,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     marginTop: 2,
     textAlign: "center",
   },
@@ -866,7 +857,7 @@ const styles = StyleSheet.create({
   signOutText: {
     color: theme.colors.danger,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 
   // DEV console
@@ -877,7 +868,7 @@ const styles = StyleSheet.create({
   devToggleText: {
     color: theme.colors.textSubtle,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 1,
   },
   devConsole: {
@@ -891,7 +882,7 @@ const styles = StyleSheet.create({
   devLabel: {
     color: theme.colors.orange,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 2,
   },
   devButton: {
@@ -905,7 +896,7 @@ const styles = StyleSheet.create({
   devButtonText: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   devRow: {
     flexDirection: "row",
@@ -921,7 +912,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   devDisconnect: {
     paddingHorizontal: 10,
@@ -933,7 +924,7 @@ const styles = StyleSheet.create({
   devDisconnectText: {
     color: theme.colors.danger,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   devTestRow: {
     flexDirection: "row",
@@ -951,7 +942,7 @@ const styles = StyleSheet.create({
   devError: {
     color: theme.colors.danger,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   devTrackCard: {
     backgroundColor: theme.colors.elevated,
@@ -962,12 +953,12 @@ const styles = StyleSheet.create({
   devTrackName: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   devTrackArtist: {
     color: theme.colors.teal,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   devTrackAlbum: {
     color: theme.colors.textMuted,

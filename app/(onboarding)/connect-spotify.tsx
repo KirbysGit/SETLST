@@ -147,14 +147,14 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: 30,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: -0.5,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   featureList: {
     gap: 12,
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 15,
     lineHeight: 22,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   actions: {
     gap: 12,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   connectText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0.5,
   },
   skipButton: {
@@ -203,6 +203,6 @@ const styles = StyleSheet.create({
   skipText: {
     color: theme.colors.textMuted,
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

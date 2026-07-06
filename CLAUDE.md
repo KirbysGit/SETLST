@@ -87,3 +87,4 @@ app/
 
 - No comments unless explaining non-obvious *why* (a workaround, a hidden constraint).
 - Match existing component patterns: functional components, `StyleSheet.create` at file bottom, `theme` from `constants/theme.ts` for all colors/spacing — never hardcode hex values inline.
+- **Typography**: the app font is Manrope, loaded in `app/_layout.tsx`. Never use `fontWeight` — use `theme.fonts.*` families (Manrope has no 900; heaviest is `extrabold`). For text roles, compose from the `text` presets in `constants/theme.ts` (`{ ...text.pageTitle }`, `{ ...text.eyebrow, color: ... }`) instead of hand-rolling size/family/color; add a new preset when a role repeats across screens.

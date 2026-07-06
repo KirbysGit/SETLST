@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 10,
     lineHeight: 13,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0,
     textTransform: "uppercase",
     marginBottom: theme.spacing.xs
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 11,
     lineHeight: 14,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   optionTextActive: {

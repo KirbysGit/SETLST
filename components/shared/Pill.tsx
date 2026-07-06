@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.typography.micro,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 0,
     textTransform: "uppercase"
   }

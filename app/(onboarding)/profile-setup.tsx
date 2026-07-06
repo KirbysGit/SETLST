@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: theme.colors.teal,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   header: {
     gap: 6,
@@ -309,13 +309,13 @@ const styles = StyleSheet.create({
   stepLabel: {
     color: theme.colors.teal,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 2,
   },
   title: {
     color: theme.colors.text,
     fontSize: 32,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     lineHeight: 38,
     letterSpacing: -0.5,
   },
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   avatarWrap: {
     alignSelf: "center",
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   avatarInitials: {
     color: theme.colors.background,
     fontSize: 28,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   avatarEditBadge: {
     position: "absolute",
@@ -362,13 +362,13 @@ const styles = StyleSheet.create({
   avatarEditText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     lineHeight: 20,
   },
   avatarHint: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     marginTop: -12,
   },
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0.5,
   },
   input: {
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   usernameRow: {
     flexDirection: "row",
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   atSign: {
     color: theme.colors.teal,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     marginRight: 2,
   },
   usernameInput: {
@@ -433,12 +433,12 @@ const styles = StyleSheet.create({
   visibleBadgeText: {
     color: theme.colors.textMuted,
     fontSize: 10,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   fieldHint: {
     color: theme.colors.textSubtle,
     fontSize: 11,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: 4,
     lineHeight: 15,
   },
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
   noticeText: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     lineHeight: 18,
   },
   ctaWrapper: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   ctaText: {
     color: theme.colors.background,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0.5,
   },
 });

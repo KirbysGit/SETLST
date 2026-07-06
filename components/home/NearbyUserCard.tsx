@@ -70,21 +70,21 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.body,
     lineHeight: 19,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   song: {
     color: theme.colors.text,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 0
   },
   artist: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0
   }
 });

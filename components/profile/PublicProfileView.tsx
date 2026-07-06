@@ -3,8 +3,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { UserProfile } from "../../hooks/useProfile";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { Relationship } from "../../lib/friends";
@@ -89,6 +91,9 @@ interface Props {
   relationship?: Relationship;
   onConnect?: () => void;
   onAccept?: () => void;
+  onMessage?: () => void;
+  onFriendOptions?: () => void;
+  onCancelRequest?: () => void;
 }
 
 export function PublicProfileView({
@@ -98,6 +103,9 @@ export function PublicProfileView({
   relationship = "none",
   onConnect,
   onAccept,
+  onMessage,
+  onFriendOptions,
+  onCancelRequest,
 }: Props) {
   const privacy = profile.privacy ?? {
     goals_public: true,
@@ -159,15 +167,33 @@ export function PublicProfileView({
             )}
 
             {relationship === "outgoing" && (
-              <View style={[styles.statusPill, styles.statusPillMuted]}>
+              <TouchableOpacity
+                style={[styles.statusPill, styles.statusPillMuted]}
+                onPress={onCancelRequest}
+                activeOpacity={0.75}
+              >
                 <Text style={styles.statusPillText}>Requested</Text>
-              </View>
+                <Ionicons name="close" size={13} color={theme.colors.textMuted} />
+              </TouchableOpacity>
             )}
 
             {relationship === "friends" && (
-              <View style={[styles.statusPill, styles.statusPillFriends]}>
-                <Text style={styles.statusPillFriendsText}>✓ Friends</Text>
-              </View>
+              <>
+                <GradientButton
+                  size="md"
+                  label="Message"
+                  icon={<Ionicons name="chatbubble-outline" size={15} color={theme.colors.background} />}
+                  onPress={onMessage}
+                />
+                <TouchableOpacity
+                  style={[styles.statusPill, styles.statusPillFriends]}
+                  onPress={onFriendOptions}
+                  activeOpacity={0.75}
+                >
+                  <Text style={styles.statusPillFriendsText}>Friends</Text>
+                  <Ionicons name="chevron-down" size={13} color={theme.colors.purple} />
+                </TouchableOpacity>
+              </>
             )}
           </View>
         )}
@@ -250,14 +276,14 @@ const styles = StyleSheet.create({
   displayName: {
     color: theme.colors.text,
     fontSize: 24,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: -0.3,
     marginTop: 4,
   },
   username: {
     color: theme.colors.teal,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   metaRow: {
     flexDirection: "row",
@@ -277,7 +303,7 @@ const styles = StyleSheet.create({
   metaText: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   actions: {
     flexDirection: "row",
@@ -285,7 +311,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   statusPill: {
-    paddingHorizontal: 24,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: 18,
     paddingVertical: 11,
     borderRadius: 12,
     borderWidth: 1.5,
@@ -299,7 +327,7 @@ const styles = StyleSheet.create({
   statusPillText: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   statusPillFriends: {
     backgroundColor: theme.colors.purple + "15",
@@ -308,7 +336,7 @@ const styles = StyleSheet.create({
   statusPillFriendsText: {
     color: theme.colors.purple,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   previewBanner: {
     marginTop: 8,
@@ -322,7 +350,7 @@ const styles = StyleSheet.create({
   previewBannerText: {
     color: theme.colors.purple,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 
   // Now playing
@@ -351,7 +379,7 @@ const styles = StyleSheet.create({
   nowPlayingLabel: {
     color: theme.colors.purple,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
@@ -378,7 +406,7 @@ const styles = StyleSheet.create({
   albumArtText: {
     color: theme.colors.text,
     fontSize: 20,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   trackInfo: {
     flex: 1,
@@ -387,12 +415,12 @@ const styles = StyleSheet.create({
   trackName: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   trackArtist: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: 2,
   },
   waveform: {
@@ -415,7 +443,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   card: {
     backgroundColor: theme.colors.surface,
@@ -434,12 +462,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   rowValue: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     maxWidth: "60%",
     textAlign: "right",
   },
@@ -451,7 +479,7 @@ const styles = StyleSheet.create({
   vibeText: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     fontStyle: "italic",
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -463,7 +491,7 @@ const styles = StyleSheet.create({
   openToLabel: {
     color: theme.colors.textMuted,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
     paddingHorizontal: 16,
@@ -488,7 +516,7 @@ const styles = StyleSheet.create({
   chipText: {
     color: theme.colors.purple,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   emptyNotice: {
     padding: 24,
@@ -497,7 +525,7 @@ const styles = StyleSheet.create({
   emptyNoticeText: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     lineHeight: 21,
   },

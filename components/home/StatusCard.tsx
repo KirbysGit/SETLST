@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 22,
     lineHeight: 27,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   helper: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
     lineHeight: 18,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0
   },
   toggle: {

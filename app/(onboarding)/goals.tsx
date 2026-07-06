@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   exitButtonText: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   logoSmall: {
     width: 28,
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   stepCounter: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   progressTrack: {
     height: 3,
@@ -453,14 +453,14 @@ const styles = StyleSheet.create({
   question: {
     color: theme.colors.text,
     fontSize: 28,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     lineHeight: 34,
     letterSpacing: -0.5,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     lineHeight: 18,
   },
   scroll: {
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     lineHeight: 17,
   },
   gridLabelSelected: {
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   gridCheckText: {
     color: theme.colors.background,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   // List rows
   listRow: {
@@ -544,17 +544,17 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   listLabelSelected: {
     color: theme.colors.text,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   listLabelCentered: {
     textAlign: "center",
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   listCheck: {
     width: 22,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   listCheckText: {
     color: theme.colors.background,
     fontSize: 12,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   hintRow: {
     alignItems: "center",
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   hintText: {
     color: theme.colors.teal,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   // Summary card
   summaryCard: {
@@ -591,21 +591,21 @@ const styles = StyleSheet.create({
   summaryLine: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   summaryFreq: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   summaryOpen: {
     color: theme.colors.purple,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   summaryOpenLabel: {
     color: theme.colors.textMuted,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   // Actions
   actions: {
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
   continueText: {
     color: theme.colors.background,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   secondaryRow: {
     flexDirection: "row",
@@ -644,12 +644,12 @@ const styles = StyleSheet.create({
   backText: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   skipText: {
     color: theme.colors.textSubtle,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   // Step label strip
   stepLabels: {
@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
   stepNum: {
     color: theme.colors.textMuted,
     fontSize: 10,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   stepNumActive: {
     color: theme.colors.background,

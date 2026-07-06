@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   kicker: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 0,
     marginBottom: 4
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.section,
     lineHeight: 23,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   badge: {
@@ -76,13 +76,13 @@ const styles = StyleSheet.create({
   badgeText: {
     color: theme.colors.orange,
     fontSize: theme.typography.small,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   helper: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
     letterSpacing: 0,
     marginBottom: theme.spacing.md
   },
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   dayLabel: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   dayLabelDone: {

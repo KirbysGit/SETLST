@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
   },
   initials: {
     color: theme.colors.text,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   gradientInitials: {
     color: theme.colors.background,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   }
 });

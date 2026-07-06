@@ -140,17 +140,17 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     lineHeight: 18,
   },
   name: {
     color: theme.colors.text,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   action: {
     color: theme.colors.purple,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     paddingHorizontal: 6,
   },
 });

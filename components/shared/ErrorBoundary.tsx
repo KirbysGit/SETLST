@@ -58,12 +58,12 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: 20,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     lineHeight: 21,
     marginBottom: 8,

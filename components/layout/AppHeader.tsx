@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: theme.colors.textMuted,
     fontSize: theme.typography.small,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   actions: {
     flexDirection: "row",
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   iconText: {
     color: theme.colors.text,
     fontSize: 12,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   notificationDot: {
     position: "absolute",

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.textMuted,
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   liveBadgeText: {
     color: theme.colors.purple,
     fontSize: 9,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 1.2,
   },
   trackRow: {
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   albumArtText: {
     color: theme.colors.text,
     fontSize: 20,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   trackInfo: {
     flex: 1,
@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
   trackName: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   artistName: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: 2,
   },
   statusArea: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   pausedText: {
     color: theme.colors.textMuted,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   emptyTrack: {
     paddingVertical: 4,
@@ -207,6 +207,6 @@ const styles = StyleSheet.create({
   emptyText: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
 });

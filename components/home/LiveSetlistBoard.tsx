@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   kicker: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 0,
     marginBottom: 4
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.section,
     lineHeight: 23,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   },
   board: {
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 11,
     lineHeight: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 0
   }
 });

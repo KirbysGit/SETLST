@@ -11,12 +11,36 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { useFriends, FriendRow } from "../../hooks/useFriends";
 import { useFriendRequests, RequestRow } from "../../hooks/useFriendRequests";
 import { FriendsSkeleton } from "../../components/skeletons/FriendsSkeleton";
 import { Avatar } from "../../components/shared/Avatar";
 import { GradientButton } from "../../components/shared/GradientButton";
-import { theme } from "../../constants/theme";
+import { text, theme } from "../../constants/theme";
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
+// ─── Section label ────────────────────────────────────────────────────────────
+function SectionLabel({ icon, label, count }: { icon: IoniconsName; label: string; count?: number }) {
+  return (
+    <View style={styles.sectionLabelRow}>
+      <Ionicons name={icon} size={13} color={theme.colors.textSubtle} />
+      <Text style={styles.sectionLabel}>{label}</Text>
+      {count != null && <Text style={styles.sectionCount}>{count}</Text>}
+    </View>
+  );
+}
+
+// ─── Gym line ─────────────────────────────────────────────────────────────────
+function GymLine({ gym }: { gym: string }) {
+  return (
+    <View style={styles.gymRow}>
+      <Ionicons name="location-outline" size={11} color={theme.colors.textSubtle} />
+      <Text style={styles.gymText} numberOfLines={1}>{gym}</Text>
+    </View>
+  );
+}
 
 // ─── Request row ──────────────────────────────────────────────────────────────
 function RequestCard({
@@ -43,9 +67,11 @@ function RequestCard({
             <Text style={styles.displayName} numberOfLines={1}>{row.display_name}</Text>
             {row.username && <Text style={styles.username}>@{row.username}</Text>}
           </View>
-          <Text style={styles.gymText} numberOfLines={1}>
-            {row.home_gym ? `📍 ${row.home_gym}` : "Wants to connect"}
-          </Text>
+          {row.home_gym ? (
+            <GymLine gym={row.home_gym} />
+          ) : (
+            <Text style={styles.gymText}>Wants to connect</Text>
+          )}
         </View>
       </TouchableOpacity>
 
@@ -111,9 +137,7 @@ function FriendCard({ row }: { row: FriendRow }) {
             )}
           </View>
         ) : row.home_gym ? (
-          <Text style={styles.gymText} numberOfLines={1}>
-            📍 {row.home_gym}
-          </Text>
+          <GymLine gym={row.home_gym} />
         ) : null}
       </View>
 
@@ -123,7 +147,7 @@ function FriendCard({ row }: { row: FriendRow }) {
         onPress={() => router.push(`/messages/${row.friend_id}`)}
         activeOpacity={0.8}
       >
-        <Text style={styles.messageIcon}>✉</Text>
+        <Ionicons name="chatbubble-outline" size={16} color={theme.colors.textMuted} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -133,7 +157,9 @@ function FriendCard({ row }: { row: FriendRow }) {
 function EmptyState() {
   return (
     <View style={styles.empty}>
-      <Text style={styles.emptyEmoji}>🏋️</Text>
+      <View style={styles.emptyIconCircle}>
+        <Ionicons name="people-outline" size={30} color={theme.colors.textMuted} />
+      </View>
       <Text style={styles.emptyTitle}>No connections yet</Text>
       <Text style={styles.emptySubtitle}>
         Tap Connect on someone's profile in the gym feed to start building your network.
@@ -210,7 +236,7 @@ export default function FriendsScreen() {
           {/* Incoming requests */}
           {requests.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>✋  Requests · {requests.length}</Text>
+              <SectionLabel icon="person-add-outline" label="Requests" count={requests.length} />
               {requests.map((r) => (
                 <RequestCard
                   key={r.friendship_id}
@@ -229,7 +255,7 @@ export default function FriendsScreen() {
               {/* Currently playing */}
               {playing.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionLabel}>🎧  Listening now</Text>
+                  <SectionLabel icon="musical-notes-outline" label="Listening now" count={playing.length} />
                   {playing.map((f) => <FriendCard key={f.friend_id} row={f} />)}
                 </View>
               )}
@@ -237,7 +263,7 @@ export default function FriendsScreen() {
               {/* Not playing */}
               {idle.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionLabel}>All friends</Text>
+                  <SectionLabel icon="people-outline" label="All friends" count={idle.length} />
                   {idle.map((f) => <FriendCard key={f.friend_id} row={f} />)}
                 </View>
               )}
@@ -262,9 +288,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   title: {
-    color: theme.colors.text,
-    fontSize: 28,
-    fontWeight: "900",
+    ...text.pageTitle,
   },
   countBadge: {
     backgroundColor: theme.colors.purple + "25",
@@ -277,7 +301,7 @@ const styles = StyleSheet.create({
   countText: {
     color: theme.colors.purple,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   scroll: {
     paddingHorizontal: 20,
@@ -287,12 +311,19 @@ const styles = StyleSheet.create({
   section: {
     gap: 10,
   },
+  sectionLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   sectionLabel: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    ...text.eyebrow,
+  },
+  sectionCount: {
+    color: theme.colors.purple,
+    fontSize: 11,
+    fontFamily: theme.fonts.extrabold,
+    marginLeft: 2,
   },
 
   // Card
@@ -338,14 +369,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   displayName: {
-    color: theme.colors.text,
-    fontSize: 15,
-    fontWeight: "800",
+    ...text.cardTitle,
   },
   username: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   trackRow: {
     flexDirection: "row",
@@ -361,7 +390,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.purple,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
   trackTextPaused: {
     color: theme.colors.textMuted,
@@ -376,10 +405,13 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: theme.colors.purple,
   },
+  gymRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
   gymText: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    fontWeight: "500",
+    ...text.cardSubtitle,
   },
 
   // Message button
@@ -392,9 +424,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     alignItems: "center",
     justifyContent: "center",
-  },
-  messageIcon: {
-    fontSize: 15,
   },
 
   // Request card
@@ -420,7 +449,7 @@ const styles = StyleSheet.create({
   declineText: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 
   // Empty
@@ -429,20 +458,22 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     gap: 12,
   },
-  emptyEmoji: {
-    fontSize: 48,
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
   },
   emptyTitle: {
-    color: theme.colors.text,
-    fontSize: 18,
-    fontWeight: "800",
+    ...text.emptyTitle,
   },
   emptySubtitle: {
-    color: theme.colors.textMuted,
-    fontSize: 14,
-    fontWeight: "500",
-    textAlign: "center",
-    lineHeight: 21,
+    ...text.emptySubtitle,
     maxWidth: 280,
   },
 });

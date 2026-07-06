@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   icon: {
     fontSize: 36,
     color: theme.colors.teal,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   badge: {
     flexDirection: "row",
@@ -95,18 +95,18 @@ const styles = StyleSheet.create({
   badgeText: {
     color: theme.colors.orange,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   title: {
     color: theme.colors.text,
     fontSize: 28,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: -0.5,
   },
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     lineHeight: 22,
   },
@@ -128,6 +128,6 @@ const styles = StyleSheet.create({
   chipText: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

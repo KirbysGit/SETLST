@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   kicker: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.micro,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 4,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: theme.typography.section,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   countBadge: {
     flexDirection: "row",
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   countText: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   rows: {
     gap: 10,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   statusDot: {
     position: "absolute",
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   albumFallbackText: {
     color: theme.colors.text,
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   info: {
     flex: 1,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   trackName: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
   textPaused: {
     color: theme.colors.textMuted,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   artistName: {
     color: theme.colors.textMuted,
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     marginTop: 2,
   },
   pausedBadge: {
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   pausedText: {
     color: theme.colors.textSubtle,
     fontSize: 10,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
   emptyContainer: {
     alignItems: "center",
@@ -306,18 +306,18 @@ const styles = StyleSheet.create({
   emptyEmoji: {
     fontSize: 36,
     color: theme.colors.purple,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
   },
   emptyTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     textAlign: "center",
   },
   emptySubtitle: {
     color: theme.colors.textMuted,
     fontSize: 13,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     textAlign: "center",
     lineHeight: 20,
     maxWidth: 260,
@@ -334,6 +334,6 @@ const styles = StyleSheet.create({
   inviteText: {
     color: theme.colors.purple,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
   },
 });

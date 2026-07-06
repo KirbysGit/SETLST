@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   appName: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     letterSpacing: 6,
   },
   header: {
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     fontSize: 26,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
     marginBottom: 4,
   },
   subtitle: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   soonPill: {
     paddingHorizontal: 8,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   soonPillText: {
     color: theme.colors.textMuted,
     fontSize: 9,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 1,
   },
   footer: {
@@ -265,6 +265,6 @@ const styles = StyleSheet.create({
   footerLink: {
     color: theme.colors.teal,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

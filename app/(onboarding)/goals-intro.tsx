@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   logoText: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 6,
   },
   body: {
@@ -82,13 +82,13 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: theme.colors.teal,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: theme.fonts.extrabold,
     letterSpacing: 3,
   },
   heading: {
     color: theme.colors.text,
     fontSize: 36,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
     lineHeight: 44,
     letterSpacing: -0.5,
   },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: 15,
     lineHeight: 24,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
     maxWidth: 320,
   },
   pills: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   pillText: {
     color: theme.colors.textMuted,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: theme.fonts.medium,
   },
   actions: {
     gap: 8,
@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
   skipText: {
     color: theme.colors.textSubtle,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
   },
 });

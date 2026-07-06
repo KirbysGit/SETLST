@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: theme.colors.background,
-    fontWeight: "800",
+    fontFamily: theme.fonts.extrabold,
   },
 });
 
