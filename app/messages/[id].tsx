@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { useChat } from "../../hooks/useChat";
@@ -20,42 +22,127 @@ import { Message } from "../../lib/messages";
 import { formatClockTime } from "../../lib/time";
 import { Avatar } from "../../components/shared/Avatar";
 import { GradientButton } from "../../components/shared/GradientButton";
-import { theme } from "../../constants/theme";
+import { text, theme } from "../../constants/theme";
 
-function Bubble({ message, mine }: { message: Message; mine: boolean }) {
+// ─── Chat bubble with pop-in ──────────────────────────────────────────────────
+function Bubble({
+  message,
+  mine,
+  grouped,
+  showTime,
+  animate,
+}: {
+  message: Message;
+  mine: boolean;
+  grouped: boolean;
+  showTime: boolean;
+  animate: boolean;
+}) {
+  const scale = useRef(new Animated.Value(animate ? 0.5 : 1)).current;
+  const opacity = useRef(new Animated.Value(animate ? 0 : 1)).current;
+
+  useEffect(() => {
+    if (!animate) return;
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, damping: 13, stiffness: 260 }),
+      Animated.timing(opacity, { toValue: 1, duration: 120, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
   return (
-    <View style={[styles.bubbleRow, mine ? styles.bubbleRowMine : styles.bubbleRowTheirs]}>
-      <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
+    <Animated.View
+      style={[
+        styles.bubbleRow,
+        mine ? styles.bubbleRowMine : styles.bubbleRowTheirs,
+        { marginVertical: grouped ? 2 : 6, opacity, transform: [{ scale }] },
+      ]}
+    >
+      <View
+        style={[
+          styles.bubble,
+          mine ? styles.bubbleMine : styles.bubbleTheirs,
+          grouped && (mine ? styles.bubbleMineGrouped : styles.bubbleTheirsGrouped),
+        ]}
+      >
         <Text style={mine ? styles.bubbleTextMine : styles.bubbleTextTheirs}>
           {message.body}
         </Text>
       </View>
-      <Text style={styles.bubbleTime}>{formatClockTime(message.created_at)}</Text>
+      {showTime && (
+        <Text style={styles.bubbleTime}>{formatClockTime(message.created_at)}</Text>
+      )}
+    </Animated.View>
+  );
+}
+
+// ─── Typing indicator ─────────────────────────────────────────────────────────
+function TypingBubble() {
+  const dots = useRef([0, 1, 2].map(() => new Animated.Value(0.3))).current;
+
+  useEffect(() => {
+    const loops = dots.map((dot, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(i * 140),
+          Animated.timing(dot, { toValue: 1, duration: 280, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0.3, duration: 280, useNativeDriver: true }),
+          Animated.delay((2 - i) * 140),
+        ])
+      )
+    );
+    loops.forEach((l) => l.start());
+    return () => loops.forEach((l) => l.stop());
+  }, []);
+
+  return (
+    <View style={[styles.bubbleRow, styles.bubbleRowTheirs, { marginVertical: 6 }]}>
+      <View style={[styles.bubble, styles.bubbleTheirs, styles.typingBubble]}>
+        {dots.map((dot, i) => (
+          <Animated.View key={i} style={[styles.typingDot, { opacity: dot }]} />
+        ))}
+      </View>
     </View>
   );
 }
 
+// ─── Screen ───────────────────────────────────────────────────────────────────
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { profile, relationship, loading: profileLoading } = usePublicProfile(id);
-  const { messages, myId, loading: chatLoading, send, loadOlder } = useChat(id);
+  const { messages, myId, loading: chatLoading, peerTyping, send, notifyTyping, loadOlder } = useChat(id);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  // Messages created after this moment pop in; history loads static.
+  const mountTimeRef = useRef(Date.now());
 
   const loading = profileLoading || chatLoading;
   const canChat = relationship === "friends";
+  const friendName = profile?.display_name ?? "your gym friend";
+
+  function onChangeDraft(value: string) {
+    setDraft(value);
+    if (value.length > 0) notifyTyping();
+  }
+
+  async function deliver(body: string) {
+    try {
+      await send(body);
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Message failed to send.");
+      throw e;
+    }
+  }
 
   async function handleSend() {
     if (!draft.trim() || sending) return;
     setSending(true);
-    const text = draft;
+    const value = draft;
     setDraft("");
     try {
-      await send(text);
-    } catch (e: any) {
-      setDraft(text);
-      Alert.alert("Error", e?.message ?? "Message failed to send.");
+      await deliver(value);
+    } catch {
+      setDraft(value);
     } finally {
       setSending(false);
     }
@@ -63,6 +150,18 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      {/* Ambient depth */}
+      <LinearGradient
+        colors={[theme.colors.purple + "14", "transparent"]}
+        style={[styles.glow, styles.glowTop]}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={["transparent", theme.colors.teal + "0D"]}
+        style={[styles.glow, styles.glowBottom]}
+        pointerEvents="none"
+      />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -88,9 +187,9 @@ export default function ChatScreen() {
               <Text style={styles.headerName} numberOfLines={1}>
                 {profile?.display_name ?? "Setlster"}
               </Text>
-              {profile?.username && (
-                <Text style={styles.headerUsername}>@{profile.username}</Text>
-              )}
+              <Text style={styles.headerStatus} numberOfLines={1}>
+                {peerTyping ? "typing…" : profile?.username ? `@${profile.username}` : ""}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -100,25 +199,57 @@ export default function ChatScreen() {
           <View style={styles.center}>
             <ActivityIndicator color={theme.colors.purple} />
           </View>
+        ) : messages.length === 0 ? (
+          // Rendered outside the FlatList: the inverted list mirrors its
+          // children, which flipped this text on Android.
+          <View style={styles.emptyChat}>
+            {canChat && (
+              <>
+                <Avatar
+                  name={profile?.display_name ?? "??"}
+                  imageUrl={profile?.avatar_url}
+                  size={72}
+                />
+                <Text style={styles.emptyChatTitle}>{friendName}</Text>
+                <Text style={styles.emptyChatText}>
+                  No messages yet — break the ice.
+                </Text>
+                <GradientButton
+                  size="md"
+                  label="Say hey  👋"
+                  onPress={() => deliver("👋").catch(() => {})}
+                />
+              </>
+            )}
+          </View>
         ) : (
           <FlatList
             data={messages}
             inverted
             keyExtractor={(m) => m.id}
-            renderItem={({ item }) => <Bubble message={item} mine={item.sender_id === myId} />}
+            renderItem={({ item, index }) => {
+              const mine = item.sender_id === myId;
+              // Inverted list: index - 1 is the *newer* neighbor.
+              const newer = messages[index - 1];
+              const lastInGroup =
+                !newer ||
+                newer.sender_id !== item.sender_id ||
+                new Date(newer.created_at).getTime() - new Date(item.created_at).getTime() > 4 * 60_000;
+              return (
+                <Bubble
+                  message={item}
+                  mine={mine}
+                  grouped={!lastInGroup}
+                  showTime={lastInGroup}
+                  animate={new Date(item.created_at).getTime() > mountTimeRef.current}
+                />
+              );
+            }}
             contentContainerStyle={styles.list}
             onEndReached={loadOlder}
             onEndReachedThreshold={0.4}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <View style={styles.emptyChat}>
-                <Text style={styles.emptyChatText}>
-                  {canChat
-                    ? `Say hey to ${profile?.display_name ?? "your gym friend"} 👋`
-                    : ""}
-                </Text>
-              </View>
-            }
+            ListHeaderComponent={peerTyping ? <TypingBubble /> : null}
           />
         )}
 
@@ -137,7 +268,7 @@ export default function ChatScreen() {
               placeholder="Message..."
               placeholderTextColor={theme.colors.textMuted}
               value={draft}
-              onChangeText={setDraft}
+              onChangeText={onChangeDraft}
               multiline
               maxLength={2000}
             />
@@ -167,6 +298,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  glow: {
+    position: "absolute",
+    left: -40,
+    right: -40,
+    height: 280,
+  },
+  glowTop: {
+    top: 0,
+  },
+  glowBottom: {
+    bottom: 0,
+  },
 
   // Header
   header: {
@@ -192,24 +335,23 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   headerName: {
-    color: theme.colors.text,
+    ...text.cardTitle,
     fontSize: 16,
-    fontWeight: "800",
   },
-  headerUsername: {
+  headerStatus: {
     color: theme.colors.teal,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    marginTop: 1,
   },
 
   // Messages
   list: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 14,
-    gap: 10,
   },
   bubbleRow: {
-    maxWidth: "80%",
+    maxWidth: "78%",
   },
   bubbleRowMine: {
     alignSelf: "flex-end",
@@ -220,9 +362,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   bubble: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    borderRadius: 20,
   },
   bubbleMine: {
     backgroundColor: theme.colors.purple,
@@ -234,33 +376,60 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     borderBottomLeftRadius: 6,
   },
+  bubbleMineGrouped: {
+    borderTopRightRadius: 8,
+  },
+  bubbleTheirsGrouped: {
+    borderTopLeftRadius: 8,
+  },
   bubbleTextMine: {
     color: theme.colors.white,
-    fontSize: 15,
-    lineHeight: 21,
+    fontSize: 16,
+    lineHeight: 22,
+    fontFamily: theme.fonts.medium,
   },
   bubbleTextTheirs: {
     color: theme.colors.text,
-    fontSize: 15,
-    lineHeight: 21,
+    fontSize: 16,
+    lineHeight: 22,
+    fontFamily: theme.fonts.medium,
   },
   bubbleTime: {
-    color: theme.colors.textSubtle,
+    ...text.caption,
     fontSize: 10,
-    fontWeight: "600",
-    marginTop: 3,
+    marginTop: 4,
     marginHorizontal: 4,
   },
-  emptyChat: {
-    // Inverted list flips children — flip back so the prompt reads upright.
-    transform: [{ scaleY: -1 }],
+
+  // Typing indicator
+  typingBubble: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 40,
+    gap: 5,
+    paddingVertical: 14,
+  },
+  typingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: theme.colors.textMuted,
+  },
+
+  // Empty chat
+  emptyChat: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingBottom: 40,
+  },
+  emptyChatTitle: {
+    ...text.emptyTitle,
+    marginTop: 6,
   },
   emptyChatText: {
-    color: theme.colors.textMuted,
-    fontSize: 14,
-    fontWeight: "600",
+    ...text.emptySubtitle,
+    marginBottom: 8,
   },
 
   // Composer
@@ -278,16 +447,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: theme.colors.text,
-    fontSize: 15,
+    fontSize: 16,
+    fontFamily: theme.fonts.medium,
     backgroundColor: theme.colors.surface,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: theme.colors.border,
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
     maxHeight: 110,
   },
+
   // Guard
   guard: {
     margin: 14,
@@ -298,9 +469,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   guardText: {
-    color: theme.colors.textMuted,
+    ...text.body,
     fontSize: 13,
-    fontWeight: "600",
     textAlign: "center",
     lineHeight: 19,
   },
