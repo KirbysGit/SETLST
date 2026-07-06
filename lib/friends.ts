@@ -50,8 +50,20 @@ export async function acceptFriendRequest(friendshipId: string) {
 }
 
 export async function declineFriendRequest(friendshipId: string) {
-  const { error } = await supabase.from("friends").delete().eq("id", friendshipId);
+  // .select() makes the delete return affected rows — RLS-blocked deletes
+  // otherwise "succeed" with zero rows and the request silently survives.
+  const { data, error } = await supabase
+    .from("friends")
+    .delete()
+    .eq("id", friendshipId)
+    .select("id");
+
   if (error) throw error;
+  if (!data?.length) {
+    throw new Error(
+      "The request wasn't removed — the friends table is likely missing its delete RLS policy."
+    );
+  }
 }
 
 // Cancelling a request you sent is the same row-delete as declining one.

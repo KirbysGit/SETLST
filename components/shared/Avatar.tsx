@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { theme } from "../../constants/theme";
 
 type AvatarProps = {
   name: string;
-  color: string;
+  imageUrl?: string | null;
+  color?: string;
   accentColor?: string;
   size?: number;
 };
@@ -18,35 +20,56 @@ function getInitials(name: string) {
     .join("");
 }
 
-export function Avatar({ name, color, accentColor = theme.colors.teal, size = 48 }: AvatarProps) {
+export function Avatar({ name, imageUrl, color, accentColor = theme.colors.teal, size = 48 }: AvatarProps) {
+  const shape = { width: size, height: size, borderRadius: size / 2 };
+
+  if (imageUrl) {
+    return <Image source={{ uri: imageUrl }} style={shape} />;
+  }
+
+  // Solid-color variant (legacy API, used by dashboard mock cards)
+  if (color) {
+    return (
+      <View style={[styles.solid, shape, { backgroundColor: color, borderColor: accentColor }]}>
+        <Text style={[styles.initials, { fontSize: Math.max(12, size * 0.34) }]}>
+          {getInitials(name)}
+        </Text>
+      </View>
+    );
+  }
+
+  // Default: brand-gradient initials
   return (
-    <View
-      style={[
-        styles.avatar,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: color,
-          borderColor: accentColor
-        }
-      ]}
+    <LinearGradient
+      colors={theme.gradients.brand}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.gradient, shape]}
     >
-      <Text style={[styles.initials, { fontSize: Math.max(12, size * 0.34) }]}>
+      <Text style={[styles.gradientInitials, { fontSize: Math.max(12, size * 0.32) }]}>
         {getInitials(name)}
       </Text>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  avatar: {
+  solid: {
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5
   },
+  gradient: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
   initials: {
     color: theme.colors.text,
+    fontWeight: "900",
+    letterSpacing: 0
+  },
+  gradientInitials: {
+    color: theme.colors.background,
     fontWeight: "900",
     letterSpacing: 0
   }

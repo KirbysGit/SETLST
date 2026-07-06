@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  Alert,
   Image,
   RefreshControl,
   ScrollView,
@@ -10,29 +11,12 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { useFriends, FriendRow } from "../../hooks/useFriends";
 import { useFriendRequests, RequestRow } from "../../hooks/useFriendRequests";
 import { FriendsSkeleton } from "../../components/skeletons/FriendsSkeleton";
+import { Avatar } from "../../components/shared/Avatar";
+import { GradientButton } from "../../components/shared/GradientButton";
 import { theme } from "../../constants/theme";
-
-// ─── Avatar ───────────────────────────────────────────────────────────────────
-function Avatar({ display_name, avatar_url }: { display_name: string; avatar_url: string | null }) {
-  const initials = display_name.slice(0, 2).toUpperCase();
-  if (avatar_url) {
-    return <Image source={{ uri: avatar_url }} style={styles.avatar} />;
-  }
-  return (
-    <LinearGradient
-      colors={["#2EF2C3", "#8B5CF6"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.avatar}
-    >
-      <Text style={styles.avatarInitials}>{initials}</Text>
-    </LinearGradient>
-  );
-}
 
 // ─── Request row ──────────────────────────────────────────────────────────────
 function RequestCard({
@@ -53,7 +37,7 @@ function RequestCard({
         onPress={() => router.push(`/user/${row.requester_id}`)}
         activeOpacity={0.75}
       >
-        <Avatar display_name={row.display_name} avatar_url={row.avatar_url} />
+        <Avatar name={row.display_name} imageUrl={row.avatar_url} size={48} />
         <View style={styles.info}>
           <View style={styles.nameRow}>
             <Text style={styles.displayName} numberOfLines={1}>{row.display_name}</Text>
@@ -66,16 +50,7 @@ function RequestCard({
       </TouchableOpacity>
 
       <View style={styles.requestActions}>
-        <TouchableOpacity style={styles.acceptButton} onPress={onAccept} activeOpacity={0.85}>
-          <LinearGradient
-            colors={["#2EF2C3", "#8B5CF6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.acceptGradient}
-          >
-            <Text style={styles.acceptText}>Accept</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <GradientButton size="sm" label="Accept" onPress={onAccept} />
         <TouchableOpacity style={styles.declineButton} onPress={onDecline} activeOpacity={0.8}>
           <Text style={styles.declineText}>Decline</Text>
         </TouchableOpacity>
@@ -96,7 +71,7 @@ function FriendCard({ row }: { row: FriendRow }) {
     >
       {/* Avatar with status dot */}
       <View style={styles.avatarWrap}>
-        <Avatar display_name={row.display_name} avatar_url={row.avatar_url} />
+        <Avatar name={row.display_name} imageUrl={row.avatar_url} size={48} />
         <View style={[
           styles.statusDot,
           row.is_playing ? styles.statusDotActive : styles.statusDotIdle,
@@ -187,8 +162,20 @@ export default function FriendsScreen() {
   }
 
   async function onAccept(friendshipId: string) {
-    await accept(friendshipId);
-    await reload();
+    try {
+      await accept(friendshipId);
+      await reload();
+    } catch (e: any) {
+      Alert.alert("Couldn't accept request", e?.message ?? "Try again.");
+    }
+  }
+
+  async function onDecline(friendshipId: string) {
+    try {
+      await decline(friendshipId);
+    } catch (e: any) {
+      Alert.alert("Couldn't decline request", e?.message ?? "Try again.");
+    }
   }
 
   const playing = friends.filter((f) => f.is_playing);
@@ -229,7 +216,7 @@ export default function FriendsScreen() {
                   key={r.friendship_id}
                   row={r}
                   onAccept={() => onAccept(r.friendship_id)}
-                  onDecline={() => decline(r.friendship_id)}
+                  onDecline={() => onDecline(r.friendship_id)}
                 />
               ))}
             </View>
@@ -321,18 +308,6 @@ const styles = StyleSheet.create({
   },
   avatarWrap: {
     position: "relative",
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarInitials: {
-    color: theme.colors.background,
-    fontSize: 16,
-    fontWeight: "900",
   },
   statusDot: {
     position: "absolute",
@@ -433,20 +408,6 @@ const styles = StyleSheet.create({
   requestActions: {
     alignItems: "stretch",
     gap: 6,
-  },
-  acceptButton: {
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  acceptGradient: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    alignItems: "center",
-  },
-  acceptText: {
-    color: theme.colors.background,
-    fontSize: 13,
-    fontWeight: "800",
   },
   declineButton: {
     paddingHorizontal: 16,

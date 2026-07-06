@@ -35,6 +35,9 @@ export const theme = {
     body: 15,
     small: 13,
     micro: 11
+  },
+  gradients: {
+    brand: ["#2EF2C3", "#8B5CF6"]
   }
 } as const;
 

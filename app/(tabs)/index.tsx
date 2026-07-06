@@ -8,11 +8,28 @@ import { HomeBackground } from "../../components/home/HomeBackground";
 import { PeopleStrip } from "../../components/home/PeopleStrip";
 import { YourTrackBar } from "../../components/home/YourTrackBar";
 import { HomeSkeleton } from "../../components/skeletons/HomeSkeleton";
+import { GradientButton } from "../../components/shared/GradientButton";
+import { useSpotify } from "../../contexts/SpotifyContext";
 import { theme } from "../../constants/theme";
 import { useGymPresence } from "../../hooks/useGymPresence";
 
+function SpotifyReconnectCard({ onConnect }: { onConnect: () => void }) {
+  return (
+    <View style={styles.reconnectCard}>
+      <View style={styles.reconnectInfo}>
+        <Text style={styles.reconnectTitle}>Spotify disconnected</Text>
+        <Text style={styles.reconnectSubtitle}>
+          Reconnect to share your track and appear in the gym feed.
+        </Text>
+      </View>
+      <GradientButton size="sm" label="Reconnect" onPress={onConnect} />
+    </View>
+  );
+}
+
 export default function HomeScreen() {
   const { own, others, gym, loading, refreshing, refresh, cooldownSeconds } = useGymPresence();
+  const { isConnected, connect } = useSpotify();
 
   if (loading) {
     return <HomeSkeleton />;
@@ -37,7 +54,11 @@ export default function HomeScreen() {
           }
         >
           <AppHeader eyebrow={gym ?? "Set your gym in profile"} accentColor={theme.colors.purple} />
-          <YourTrackBar presence={own} gym={gym} />
+          {isConnected ? (
+            <YourTrackBar presence={own} gym={gym} />
+          ) : (
+            <SpotifyReconnectCard onConnect={connect} />
+          )}
 
           {cooldownSeconds > 0 && (
             <View style={styles.cooldownRow}>
@@ -68,6 +89,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
     paddingBottom: 120,
+  },
+  reconnectCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  reconnectInfo: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+  },
+  reconnectTitle: {
+    color: theme.colors.text,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  reconnectSubtitle: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 17,
   },
   cooldownRow: {
     alignItems: "center",

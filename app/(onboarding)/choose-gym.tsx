@@ -11,20 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase";
+import { GYMS } from "../../constants/gyms";
 import { theme } from "../../constants/theme";
-
-const GYMS = [
-  "Planet Fitness",
-  "LA Fitness",
-  "Crunch Fitness",
-  "Equinox",
-  "24 Hour Fitness",
-  "Gold's Gym",
-  "Anytime Fitness",
-  "YMCA",
-  "Life Time Fitness",
-  "Orangetheory Fitness",
-];
 
 export default function ChooseGym() {
   const router = useRouter();
@@ -104,7 +92,7 @@ export default function ChooseGym() {
           activeOpacity={0.85}
         >
           <LinearGradient
-            colors={selected ? ["#2EF2C3", "#8B5CF6"] : [theme.colors.border, theme.colors.border]}
+            colors={selected ? theme.gradients.brand : [theme.colors.border, theme.colors.border]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.finishButton}

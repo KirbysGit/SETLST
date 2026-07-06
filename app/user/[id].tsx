@@ -59,9 +59,6 @@ export default function UserProfileScreen() {
         presence={presence}
         isOwnProfile={false}
         relationship={relationship}
-        onWave={() => {
-          // Wave is a V2 feature (push-notification gated) — no-op for now.
-        }}
         onConnect={handleConnect}
         onAccept={handleAccept}
       />

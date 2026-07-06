@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { acceptFriendRequest, declineFriendRequest } from "../lib/friends";
 
@@ -78,7 +79,33 @@ export function useFriendRequests() {
     await load();
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    let channel: RealtimeChannel | null = null;
+    let cancelled = false;
+
+    async function init() {
+      await load();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      // Live-update the requests list when a request arrives or is resolved
+      channel = supabase
+        .channel(`friend-requests:${user.id}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "friends", filter: `receiver_id=eq.${user.id}` },
+          () => { load(); }
+        )
+        .subscribe();
+    }
+
+    init();
+
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, []);
 
   return { requests, loading, reload: load, accept, decline };
 }

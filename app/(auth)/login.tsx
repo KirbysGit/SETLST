@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase";
+import { GradientButton } from "../../components/shared/GradientButton";
 import { theme } from "../../constants/theme";
 
 const stacked = require("../../images/v1_stacked.png");
@@ -75,21 +75,13 @@ export default function Login() {
         </TouchableOpacity>
 
         {/* Log in button */}
-        <TouchableOpacity
-          style={styles.loginWrapper}
+        <GradientButton
+          label={loading ? "LOGGING IN..." : "LOG IN"}
           onPress={signIn}
           disabled={loading}
-          activeOpacity={0.85}
-        >
-          <LinearGradient
-            colors={["#2EF2C3", "#8B5CF6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.loginButton}
-          >
-            <Text style={styles.loginText}>{loading ? "LOGGING IN..." : "LOG IN"}</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          style={styles.loginButton}
+          textStyle={styles.loginText}
+        />
 
         {/* Divider */}
         <View style={styles.dividerRow}>
@@ -98,21 +90,20 @@ export default function Login() {
           <View style={styles.divider} />
         </View>
 
-        {/* Social buttons */}
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialIcon}>🍎</Text>
-          <Text style={styles.socialText}>Continue with Apple</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialIcon}>G</Text>
-          <Text style={styles.socialText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialIcon}>📱</Text>
-          <Text style={styles.socialText}>Continue with Phone</Text>
-        </TouchableOpacity>
+        {/* Social options — not wired up yet, shown as roadmap */}
+        {[
+          { icon: "🍎", label: "Continue with Apple" },
+          { icon: "G", label: "Continue with Google" },
+          { icon: "📱", label: "Continue with Phone" },
+        ].map((s) => (
+          <View key={s.label} style={styles.socialButton}>
+            <Text style={styles.socialIcon}>{s.icon}</Text>
+            <Text style={styles.socialText}>{s.label}</Text>
+            <View style={styles.soonPill}>
+              <Text style={styles.soonPillText}>SOON</Text>
+            </View>
+          </View>
+        ))}
       </View>
 
       {/* Footer */}
@@ -202,20 +193,11 @@ const styles = StyleSheet.create({
     color: theme.colors.teal,
     fontSize: 13,
   },
-  loginWrapper: {
-    borderRadius: 12,
-    overflow: "hidden",
+  loginButton: {
     marginTop: 4,
   },
-  loginButton: {
-    paddingVertical: 16,
-    alignItems: "center",
-    borderRadius: 12,
-  },
   loginText: {
-    color: theme.colors.background,
     fontSize: 15,
-    fontWeight: "800",
     letterSpacing: 2,
   },
   dividerRow: {
@@ -243,6 +225,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    opacity: 0.55,
   },
   socialIcon: {
     fontSize: 18,
@@ -250,9 +233,24 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   socialText: {
+    flex: 1,
     color: theme.colors.text,
     fontSize: 15,
     fontWeight: "500",
+  },
+  soonPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    backgroundColor: theme.colors.elevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  soonPillText: {
+    color: theme.colors.textMuted,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1,
   },
   footer: {
     flexDirection: "row",

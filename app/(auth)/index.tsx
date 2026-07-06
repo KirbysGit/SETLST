@@ -10,29 +10,22 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AnimatedWaveform } from "../../components/shared/AnimatedWaveform";
+import { Avatar } from "../../components/shared/Avatar";
+import { GradientButton } from "../../components/shared/GradientButton";
 import { theme } from "../../constants/theme";
 
 const stacked = require("../../images/v1_stacked.png");
 
-const BRAND_GRADIENT = ["#2EF2C3", "#8B5CF6"] as const;
-
 // Faux gym feed used purely as a product preview on the landing screen.
 const PREVIEW = [
-  { name: "Jordan Blake", initials: "JB", track: "Blinding Lights", artist: "The Weeknd" },
-  { name: "Maya Chen", initials: "MC", track: "POWER", artist: "Kanye West" },
+  { name: "Jordan Blake", track: "Blinding Lights", artist: "The Weeknd" },
+  { name: "Maya Chen", track: "POWER", artist: "Kanye West" },
 ];
 
 function PreviewRow({ person }: { person: (typeof PREVIEW)[number] }) {
   return (
     <View style={styles.previewRow}>
-      <LinearGradient
-        colors={BRAND_GRADIENT}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.previewAvatar}
-      >
-        <Text style={styles.previewInitials}>{person.initials}</Text>
-      </LinearGradient>
+      <Avatar name={person.name} size={40} />
 
       <View style={styles.previewInfo}>
         <Text style={styles.previewName} numberOfLines={1}>{person.name}</Text>
@@ -76,7 +69,7 @@ export default function Landing() {
         <View style={styles.taglineArea}>
           <Text style={styles.tagline}>GYM RHYTHM.</Text>
           <LinearGradient
-            colors={BRAND_GRADIENT}
+            colors={theme.gradients.brand}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.taglineGradientBox}
@@ -117,20 +110,11 @@ export default function Landing() {
 
       {/* Actions pinned at the bottom */}
       <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.getStartedWrapper}
+        <GradientButton
+          label="GET STARTED  →"
           onPress={() => router.push("/(auth)/signup")}
-          activeOpacity={0.85}
-        >
-          <LinearGradient
-            colors={BRAND_GRADIENT}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.getStartedButton}
-          >
-            <Text style={styles.getStartedText}>GET STARTED  →</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          textStyle={styles.getStartedText}
+        />
 
         <View style={styles.loginRow}>
           <Text style={styles.loginPrompt}>Already have an account? </Text>
@@ -246,18 +230,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  previewAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  previewInitials: {
-    color: theme.colors.background,
-    fontSize: 14,
-    fontWeight: "900",
-  },
   previewInfo: {
     flex: 1,
     minWidth: 0,
@@ -309,20 +281,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
   },
-  getStartedWrapper: {
-    width: "100%",
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  getStartedButton: {
-    paddingVertical: 17,
-    alignItems: "center",
-    borderRadius: 14,
-  },
   getStartedText: {
-    color: theme.colors.background,
-    fontSize: 16,
-    fontWeight: "800",
     letterSpacing: 2,
   },
   loginRow: {

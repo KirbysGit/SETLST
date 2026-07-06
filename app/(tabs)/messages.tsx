@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import {
   FlatList,
-  Image,
   Modal,
   RefreshControl,
   StyleSheet,
@@ -11,38 +10,12 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useConversations, ConversationRow } from "../../hooks/useConversations";
 import { useFriends } from "../../hooks/useFriends";
+import { timeAgo } from "../../lib/time";
+import { Avatar } from "../../components/shared/Avatar";
 import { theme } from "../../constants/theme";
-
-function timeAgo(iso: string) {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return "now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return `${Math.floor(days / 7)}w`;
-}
-
-function Avatar({ name, url, size = 50 }: { name: string; url: string | null; size?: number }) {
-  const style = { width: size, height: size, borderRadius: size / 2 };
-  if (url) return <Image source={{ uri: url }} style={style} />;
-  return (
-    <LinearGradient
-      colors={["#2EF2C3", "#8B5CF6"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[style, styles.avatarFallback]}
-    >
-      <Text style={styles.avatarInitials}>{name.slice(0, 2).toUpperCase()}</Text>
-    </LinearGradient>
-  );
-}
 
 function ConversationCard({ row }: { row: ConversationRow }) {
   const router = useRouter();
@@ -54,7 +27,7 @@ function ConversationCard({ row }: { row: ConversationRow }) {
       onPress={() => router.push(`/messages/${row.user_id}`)}
       activeOpacity={0.75}
     >
-      <Avatar name={row.display_name} url={row.avatar_url} />
+      <Avatar name={row.display_name} imageUrl={row.avatar_url} size={50} />
 
       <View style={styles.cardInfo}>
         <Text style={[styles.cardName, unread && styles.cardNameUnread]} numberOfLines={1}>
@@ -178,7 +151,7 @@ export default function MessagesScreen() {
                     onPress={() => startChat(item.friend_id)}
                     activeOpacity={0.75}
                   >
-                    <Avatar name={item.display_name} url={item.avatar_url} size={42} />
+                    <Avatar name={item.display_name} imageUrl={item.avatar_url} size={42} />
                     <View style={styles.friendInfo}>
                       <Text style={styles.friendName} numberOfLines={1}>
                         {item.display_name}
@@ -248,15 +221,6 @@ const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,
-  },
-  avatarFallback: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarInitials: {
-    color: theme.colors.background,
-    fontSize: 15,
-    fontWeight: "900",
   },
   cardInfo: {
     flex: 1,

@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
+import { GradientButton } from "../../components/shared/GradientButton";
 import { theme } from "../../constants/theme";
 
 const wordmark = require("../../images/v1_wordmark_white.png");
@@ -40,20 +40,11 @@ export default function GoalsIntro() {
 
       {/* Actions */}
       <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.ctaWrapper}
+        <GradientButton
+          label="Let's do it →"
           onPress={() => router.push("/(onboarding)/goals")}
-          activeOpacity={0.85}
-        >
-          <LinearGradient
-            colors={["#2EF2C3", "#8B5CF6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.ctaButton}
-          >
-            <Text style={styles.ctaText}>Let's do it →</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          textStyle={styles.ctaText}
+        />
 
         <TouchableOpacity onPress={() => router.replace("/(tabs)")} style={styles.skip}>
           <Text style={styles.skipText}>Skip for now</Text>
@@ -128,19 +119,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 16,
   },
-  ctaWrapper: {
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  ctaButton: {
-    paddingVertical: 17,
-    alignItems: "center",
-    borderRadius: 14,
-  },
   ctaText: {
-    color: theme.colors.background,
-    fontSize: 16,
-    fontWeight: "800",
     letterSpacing: 0.5,
   },
   skip: {

@@ -3,41 +3,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { UserProfile } from "../../hooks/useProfile";
 import { PresenceRow } from "../../hooks/useGymPresence";
 import { Relationship } from "../../lib/friends";
+import { Avatar } from "../shared/Avatar";
+import { GradientButton } from "../shared/GradientButton";
 import { theme } from "../../constants/theme";
-
-// ─── Avatar ───────────────────────────────────────────────────────────────────
-function Avatar({ profile, size = 80 }: { profile: UserProfile; size?: number }) {
-  const initials = profile.display_name?.slice(0, 2).toUpperCase() ?? "??";
-  const radius = size / 2;
-
-  if (profile.avatar_url) {
-    return (
-      <Image
-        source={{ uri: profile.avatar_url }}
-        style={{ width: size, height: size, borderRadius: radius }}
-      />
-    );
-  }
-  return (
-    <LinearGradient
-      colors={["#2EF2C3", "#8B5CF6"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{ width: size, height: size, borderRadius: radius, alignItems: "center", justifyContent: "center" }}
-    >
-      <Text style={{ color: theme.colors.background, fontSize: size * 0.32, fontWeight: "900" }}>
-        {initials}
-      </Text>
-    </LinearGradient>
-  );
-}
 
 // ─── Now playing card ─────────────────────────────────────────────────────────
 function NowPlayingCard({ presence }: { presence: PresenceRow }) {
@@ -114,7 +87,6 @@ interface Props {
   presence: PresenceRow | null;
   isOwnProfile?: boolean;
   relationship?: Relationship;
-  onWave?: () => void;
   onConnect?: () => void;
   onAccept?: () => void;
 }
@@ -124,7 +96,6 @@ export function PublicProfileView({
   presence,
   isOwnProfile = false,
   relationship = "none",
-  onWave,
   onConnect,
   onAccept,
 }: Props) {
@@ -149,7 +120,11 @@ export function PublicProfileView({
     >
       {/* ── Hero header ──────────────────────────────────────────────────── */}
       <View style={styles.hero}>
-        <Avatar profile={profile} size={88} />
+        <Avatar
+          name={profile.display_name ?? "??"}
+          imageUrl={profile.avatar_url}
+          size={88}
+        />
 
         <Text style={styles.displayName}>
           {profile.display_name ?? "Setlster"}
@@ -172,37 +147,15 @@ export function PublicProfileView({
           )}
         </View>
 
-        {/* Action buttons — only shown on other people's profiles */}
+        {/* Action button — only shown on other people's profiles */}
         {!isOwnProfile && (
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.waveButton} onPress={onWave} activeOpacity={0.8}>
-              <Text style={styles.waveText}>👋  Wave</Text>
-            </TouchableOpacity>
-
             {relationship === "none" && (
-              <TouchableOpacity style={styles.connectButton} onPress={onConnect} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={["#2EF2C3", "#8B5CF6"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.connectGradient}
-                >
-                  <Text style={styles.connectText}>Connect</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <GradientButton size="md" label="Connect" onPress={onConnect} />
             )}
 
             {relationship === "incoming" && (
-              <TouchableOpacity style={styles.connectButton} onPress={onAccept} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={["#2EF2C3", "#8B5CF6"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.connectGradient}
-                >
-                  <Text style={styles.connectText}>Accept</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <GradientButton size="md" label="Accept" onPress={onAccept} />
             )}
 
             {relationship === "outgoing" && (
@@ -330,33 +283,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     marginTop: 8,
-  },
-  waveButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 11,
-    borderRadius: 12,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-  },
-  waveText: {
-    color: theme.colors.text,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  connectButton: {
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  connectGradient: {
-    paddingHorizontal: 24,
-    paddingVertical: 11,
-    borderRadius: 12,
-  },
-  connectText: {
-    color: theme.colors.background,
-    fontSize: 14,
-    fontWeight: "800",
   },
   statusPill: {
     paddingHorizontal: 24,

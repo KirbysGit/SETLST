@@ -6,6 +6,7 @@ import { Session } from "@supabase/supabase-js";
 import { theme } from "../constants/theme";
 import { DashboardStyleProvider } from "../contexts/DashboardStyleContext";
 import { SpotifyProvider } from "../contexts/SpotifyContext";
+import { ErrorBoundary } from "../components/shared/ErrorBoundary";
 import { supabase } from "../lib/supabase";
 
 function useAuthRedirect(session: Session | null, ready: boolean) {
@@ -74,19 +75,21 @@ export default function RootLayout() {
     <DashboardStyleProvider>
       <SpotifyProvider>
         <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: theme.colors.background },
-          }}
-        >
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(onboarding)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="user/[id]" />
-          <Stack.Screen name="messages/[id]" />
-          <Stack.Screen name="settings" options={{ presentation: "modal" }} />
-        </Stack>
+        <ErrorBoundary>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: theme.colors.background },
+            }}
+          >
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(onboarding)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="user/[id]" />
+            <Stack.Screen name="messages/[id]" />
+            <Stack.Screen name="settings" options={{ presentation: "modal" }} />
+          </Stack>
+        </ErrorBoundary>
       </SpotifyProvider>
     </DashboardStyleProvider>
   );

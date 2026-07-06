@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -24,8 +24,34 @@ export default function ProfileSetup() {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [savedAvatarUrl, setSavedAvatarUrl] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Prefill from the existing profile so editing doesn't start from blank fields
+  useEffect(() => {
+    async function loadExisting() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, username, avatar_url, onboarding_complete")
+        .eq("id", user.id)
+        .single();
+
+      if (!data) return;
+      if (data.display_name) setDisplayName(data.display_name);
+      if (data.username) setUsername(data.username);
+      if (data.avatar_url) {
+        setAvatarUri(data.avatar_url);
+        setSavedAvatarUrl(data.avatar_url);
+      }
+      setIsEditing(!!data.onboarding_complete);
+    }
+    loadExisting();
+  }, []);
 
   const canContinue = displayName.trim().length >= 2 && username.trim().length >= 2;
 
@@ -99,7 +125,9 @@ export default function ProfileSetup() {
       return;
     }
 
-    const avatarUrl = await uploadAvatar(user.id);
+    // Only re-upload when the user actually picked a new image
+    const avatarChanged = avatarUri !== null && avatarUri !== savedAvatarUrl;
+    const avatarUrl = avatarChanged ? await uploadAvatar(user.id) : null;
 
     await supabase.from("profiles").upsert({
       id: user.id,
@@ -109,7 +137,11 @@ export default function ProfileSetup() {
     });
 
     setSaving(false);
-    router.replace("/(onboarding)/connect-spotify");
+    if (isEditing) {
+      router.back();
+    } else {
+      router.replace("/(onboarding)/connect-spotify");
+    }
   }
 
   const initials = displayName.trim().slice(0, 2).toUpperCase() || "?";
@@ -127,10 +159,21 @@ export default function ProfileSetup() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+        {/* Back button — only when editing an already-complete profile */}
+        {isEditing && (
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Text style={styles.backButtonText}>‹  Back to profile</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.stepLabel}>ACCOUNT SETUP · STEP 1</Text>
-          <Text style={styles.title}>Set up your{"\n"}profile</Text>
+          <Text style={styles.stepLabel}>
+            {isEditing ? "EDIT PROFILE" : "ACCOUNT SETUP · STEP 1"}
+          </Text>
+          <Text style={styles.title}>
+            {isEditing ? "Update your\nprofile" : "Set up your\nprofile"}
+          </Text>
           <Text style={styles.subtitle}>
             Choose how you'll appear to other Setlsters — your name and photo are public and visible on your profile, in the gym feed, and when you connect with others.
           </Text>
@@ -142,7 +185,7 @@ export default function ProfileSetup() {
             <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
           ) : (
             <LinearGradient
-              colors={["#2EF2C3", "#8B5CF6"]}
+              colors={theme.gradients.brand}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.avatarPlaceholder}
@@ -223,14 +266,14 @@ export default function ProfileSetup() {
           activeOpacity={0.85}
         >
           <LinearGradient
-            colors={canContinue ? ["#2EF2C3", "#8B5CF6"] : [theme.colors.border, theme.colors.border]}
+            colors={canContinue ? theme.gradients.brand : [theme.colors.border, theme.colors.border]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.ctaButton}
           >
             {saving
               ? <ActivityIndicator color={theme.colors.background} />
-              : <Text style={styles.ctaText}>Continue →</Text>
+              : <Text style={styles.ctaText}>{isEditing ? "Save changes" : "Continue →"}</Text>
             }
           </LinearGradient>
         </TouchableOpacity>
@@ -250,6 +293,15 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 48,
     gap: 20,
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: -8,
+  },
+  backButtonText: {
+    color: theme.colors.teal,
+    fontSize: 14,
+    fontWeight: "700",
   },
   header: {
     gap: 6,

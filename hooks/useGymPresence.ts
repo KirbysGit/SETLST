@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import { supabase } from "../lib/supabase";
 import { spotifyFetch, getSpotifyTokens } from "../lib/spotify";
 
@@ -106,56 +107,73 @@ export function useGymPresence(): GymPresence {
     setRefreshing(false);
   }
 
-  // ─── Bootstrap ────────────────────────────────────────────────────────────
+  // ─── Resolve the user's current home gym ──────────────────────────────────
+  // Runs on mount AND every time the screen regains focus, so a gym change
+  // made in the profile tab re-points the feed without an app restart.
+  const checkGym = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
+
+    userIdRef.current = user.id;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("home_gym, display_name")
+      .eq("id", user.id)
+      .single();
+
+    displayNameRef.current = profile?.display_name ?? user.email?.split("@")[0] ?? "Setlster";
+
+    const homeGym = profile?.home_gym ?? null;
+    if (!homeGym) setLoading(false);
+    setGym((prev) => (prev === homeGym ? prev : homeGym));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      checkGym();
+    }, [checkGym])
+  );
+
+  // ─── Wire feed + realtime + polling to the current gym ────────────────────
+  // Re-runs whenever gym changes: old channel/interval torn down, new ones up.
   useEffect(() => {
+    gymRef.current = gym;
+    if (!gym) return;
+
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
 
-    async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+    async function wire() {
+      const userId = userIdRef.current;
+      if (!userId) return;
 
-      userIdRef.current = user.id;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("home_gym, display_name")
-        .eq("id", user.id)
-        .single();
-
-      const homeGym = profile?.home_gym ?? null;
-      displayNameRef.current = profile?.display_name ?? user.email?.split("@")[0] ?? "Setlster";
-
-      gymRef.current = homeGym;
-      setGym(homeGym);
-
-      if (!homeGym) { setLoading(false); return; }
-
-      // Initial presence fetch
       const { data: rows } = await supabase
         .from("presence")
         .select("*")
-        .eq("gym", homeGym);
+        .eq("gym", gym);
+
+      if (cancelled) return;
 
       const allRows = (rows ?? []) as PresenceRow[];
-      setOwn(allRows.find((r) => r.user_id === user.id) ?? null);
+      setOwn(allRows.find((r) => r.user_id === userId) ?? null);
       setOthers(
         allRows
-          .filter((r) => r.user_id !== user.id)
+          .filter((r) => r.user_id !== userId)
           .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       );
       setLoading(false);
 
-      // Realtime subscription
       channel = supabase
-        .channel(`gym-feed:${homeGym}`)
+        .channel(`gym-feed:${gym}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "presence", filter: `gym=eq.${homeGym}` },
+          { event: "*", schema: "public", table: "presence", filter: `gym=eq.${gym}` },
           (payload) => {
             const updated = payload.new as PresenceRow;
             if (!updated) return;
 
-            if (updated.user_id === user.id) {
+            if (updated.user_id === userIdRef.current) {
               setOwn(updated);
             } else {
               setOthers((prev) => {
@@ -169,17 +187,23 @@ export function useGymPresence(): GymPresence {
         )
         .subscribe();
 
-      // Initial Spotify sync + background poll
       await syncSpotify();
       lastRefreshRef.current = Date.now();
       intervalRef.current = setInterval(syncSpotify, POLL_INTERVAL_MS);
     }
 
-    init();
+    wire();
 
     return () => {
+      cancelled = true;
       if (channel) supabase.removeChannel(channel);
       if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [gym]);
+
+  // Cooldown timer cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (cooldownRef.current) clearInterval(cooldownRef.current);
     };
   }, []);

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
+  Alert,
   Modal,
   ScrollView,
   StyleSheet,
@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { supabase } from "../../lib/supabase";
@@ -20,26 +20,11 @@ import { useProfile, UserProfile } from "../../hooks/useProfile";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { PublicProfileView } from "../../components/profile/PublicProfileView";
 import { ProfileSkeleton } from "../../components/skeletons/ProfileSkeleton";
+import { Avatar } from "../../components/shared/Avatar";
+import { GYMS } from "../../constants/gyms";
 import { theme } from "../../constants/theme";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function Avatar({ profile }: { profile: UserProfile }) {
-  const initials = profile.display_name?.slice(0, 2).toUpperCase() ?? "??";
-  if (profile.avatar_url) {
-    return <Image source={{ uri: profile.avatar_url }} style={styles.avatar} />;
-  }
-  return (
-    <LinearGradient
-      colors={["#2EF2C3", "#8B5CF6"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.avatar}
-    >
-      <Text style={styles.avatarInitials}>{initials}</Text>
-    </LinearGradient>
-  );
-}
 
 function SectionHeader({
   title,
@@ -86,13 +71,22 @@ function EmptyField({ label }: { label: string }) {
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const router = useRouter();
-  const { profile, loading, updatePrivacy } = useProfile();
+  const { profile, loading, updatePrivacy, reload } = useProfile();
   const { isConnected, disconnect } = useSpotify();
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [gymPickerOpen, setGymPickerOpen] = useState(false);
+  const [savingGym, setSavingGym] = useState(false);
 
   // Fetch own public data for preview (reuses same hook as other profiles)
   const ownId = profile?.id ?? "";
   const { profile: previewProfile, presence: previewPresence } = usePublicProfile(ownId);
+
+  // Refresh when returning from the edit flow so saved changes show immediately
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
 
   // DEV: Spotify test state
   const [devOpen, setDevOpen] = useState(false);
@@ -102,6 +96,30 @@ export default function ProfileScreen() {
 
   async function signOut() {
     await supabase.auth.signOut();
+  }
+
+  async function changeGym(gym: string) {
+    if (!profile || gym === profile.home_gym) {
+      setGymPickerOpen(false);
+      return;
+    }
+    setSavingGym(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ home_gym: gym })
+      .eq("id", profile.id);
+
+    if (error) {
+      setSavingGym(false);
+      Alert.alert("Couldn't change gym", error.message);
+      return;
+    }
+
+    // Keep the presence row in sync so the old gym's feed drops us immediately
+    await supabase.from("presence").update({ gym }).eq("user_id", profile.id);
+    await reload();
+    setSavingGym(false);
+    setGymPickerOpen(false);
   }
 
   async function testNowPlaying() {
@@ -158,47 +176,119 @@ export default function ProfileScreen() {
         </SafeAreaView>
       </Modal>
 
+      {/* ── Gym picker modal ─────────────────────────────────────────────── */}
+      <Modal
+        visible={gymPickerOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setGymPickerOpen(false)}
+      >
+        <View style={styles.gymOverlay}>
+          <View style={styles.gymSheet}>
+            <View style={styles.gymSheetHeader}>
+              <Text style={styles.gymSheetTitle}>Change home gym</Text>
+              <TouchableOpacity onPress={() => setGymPickerOpen(false)}>
+                <Text style={styles.gymSheetClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.gymSheetSubtitle}>
+              Your presence and gym feed follow your home gym.
+            </Text>
+
+            {savingGym ? (
+              <ActivityIndicator color={theme.colors.purple} style={styles.gymSaving} />
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {GYMS.map((gym) => {
+                  const isCurrent = gym === profile?.home_gym;
+                  return (
+                    <TouchableOpacity
+                      key={gym}
+                      style={[styles.gymOption, isCurrent && styles.gymOptionCurrent]}
+                      onPress={() => changeGym(gym)}
+                      activeOpacity={0.75}
+                    >
+                      <View style={[styles.gymOptionIcon, isCurrent && styles.gymOptionIconCurrent]}>
+                        <Text style={styles.gymOptionIconText}>{gym[0]}</Text>
+                      </View>
+                      <Text style={[styles.gymOptionName, isCurrent && styles.gymOptionNameCurrent]}>
+                        {gym}
+                      </Text>
+                      {isCurrent && <Text style={styles.gymOptionCheck}>✓</Text>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        {/* ── Header ─────────────────────────────────────────────────────── */}
-        <View style={styles.header}>
-          <Avatar profile={profile} />
+        {/* ── Page title ─────────────────────────────────────────────────── */}
+        <Text style={styles.pageTitle}>Profile</Text>
 
-          <View style={styles.headerInfo}>
-            <Text style={styles.displayName}>
-              {profile.display_name ?? "Unnamed Setlster"}
-            </Text>
-            {profile.username && (
-              <Text style={styles.username}>@{profile.username}</Text>
-            )}
-            {profile.home_gym && (
-              <View style={styles.gymRow}>
-                <Text style={styles.gymIcon}>📍</Text>
-                <Text style={styles.gymName}>{profile.home_gym}</Text>
-              </View>
-            )}
-            {isConnected && (
-              <View style={styles.spotifyBadge}>
-                <Text style={styles.spotifyBadgeText}>♪  Spotify connected</Text>
-              </View>
-            )}
+        {/* ── Hero card ──────────────────────────────────────────────────── */}
+        <View style={styles.heroCard}>
+          <LinearGradient
+            colors={theme.gradients.brand}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.heroAccent}
+          />
+
+          <View style={styles.heroTop}>
+            <Avatar
+              name={profile.display_name ?? "??"}
+              imageUrl={profile.avatar_url}
+              size={68}
+            />
+            <View style={styles.heroIdentity}>
+              <Text style={styles.displayName} numberOfLines={1}>
+                {profile.display_name ?? "Unnamed Setlster"}
+              </Text>
+              {profile.username && (
+                <Text style={styles.username}>@{profile.username}</Text>
+              )}
+            </View>
           </View>
 
-          {/* Header buttons */}
-          <View style={styles.headerButtons}>
+          <View style={styles.heroChips}>
             <TouchableOpacity
-              style={styles.previewButton}
-              onPress={() => setPreviewOpen(true)}
+              style={[styles.heroChip, styles.heroChipGym]}
+              onPress={() => setGymPickerOpen(true)}
+              activeOpacity={0.75}
             >
-              <Text style={styles.previewButtonText}>👁 Preview</Text>
+              <Text style={styles.heroChipText} numberOfLines={1}>
+                📍 {profile.home_gym ?? "Set your gym"}
+              </Text>
+              <Text style={styles.heroChipCaret}>▾</Text>
+            </TouchableOpacity>
+
+            <View style={[styles.heroChip, isConnected ? styles.heroChipSpotifyOn : styles.heroChipSpotifyOff]}>
+              <Text style={[styles.heroChipText, isConnected && styles.heroChipSpotifyOnText]}>
+                ♪ {isConnected ? "Spotify" : "Not connected"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.heroActions}>
+            <TouchableOpacity
+              style={[styles.heroActionButton, styles.heroActionPreview]}
+              onPress={() => setPreviewOpen(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.heroActionPreviewText}>👁  Preview</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.editButton}
+              style={styles.heroActionButton}
               onPress={() => router.push("/(onboarding)/profile-setup")}
+              activeOpacity={0.8}
             >
-              <Text style={styles.editButtonText}>Edit</Text>
+              <Text style={styles.heroActionText}>✎  Edit profile</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -387,32 +477,45 @@ const styles = StyleSheet.create({
     gap: 24,
   },
 
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+  // Page title
+  pageTitle: {
+    color: theme.colors.text,
+    fontSize: 28,
+    fontWeight: "900",
+    marginBottom: -8,
+  },
+
+  // Hero card
+  heroCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    overflow: "hidden",
+    padding: 16,
+    paddingTop: 19,
     gap: 14,
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  heroAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+  },
+  heroTop: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 14,
   },
-  avatarInitials: {
-    color: theme.colors.background,
-    fontSize: 24,
-    fontWeight: "900",
-  },
-  headerInfo: {
+  heroIdentity: {
     flex: 1,
+    minWidth: 0,
     gap: 3,
-    paddingTop: 2,
   },
   displayName: {
     color: theme.colors.text,
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: "800",
     letterSpacing: -0.3,
   },
@@ -421,64 +524,154 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
   },
-  gymRow: {
+  heroChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  heroChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    marginTop: 2,
-  },
-  gymIcon: {
-    fontSize: 11,
-  },
-  gymName: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  spotifyBadge: {
-    alignSelf: "flex-start",
-    marginTop: 4,
-    backgroundColor: "#1DB95420",
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: "#1DB95440",
-  },
-  spotifyBadgeText: {
-    color: "#1DB954",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  headerButtons: {
     gap: 6,
-    alignItems: "flex-end",
-  },
-  previewButton: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: theme.colors.purple + "20",
+    paddingVertical: 7,
+    borderRadius: theme.radius.pill,
     borderWidth: 1,
-    borderColor: theme.colors.purple + "50",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.elevated,
   },
-  previewButtonText: {
-    color: theme.colors.purple,
+  heroChipGym: {
+    borderColor: theme.colors.purple + "50",
+    backgroundColor: theme.colors.purple + "12",
+  },
+  heroChipText: {
+    color: theme.colors.text,
     fontSize: 12,
     fontWeight: "700",
   },
-  editButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: theme.colors.surface,
+  heroChipCaret: {
+    color: theme.colors.purple,
+    fontSize: 11,
+    fontWeight: "900",
+  },
+  heroChipSpotifyOn: {
+    borderColor: "#1DB95440",
+    backgroundColor: "#1DB95415",
+  },
+  heroChipSpotifyOnText: {
+    color: "#1DB954",
+  },
+  heroChipSpotifyOff: {
+    opacity: 0.7,
+  },
+  heroActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  heroActionButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 11,
+    borderRadius: 12,
+    backgroundColor: theme.colors.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
-  editButtonText: {
+  heroActionPreview: {
+    backgroundColor: theme.colors.purple + "15",
+    borderColor: theme.colors.purple + "45",
+  },
+  heroActionPreviewText: {
+    color: theme.colors.purple,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  heroActionText: {
     color: theme.colors.text,
     fontSize: 13,
     fontWeight: "700",
+  },
+
+  // Gym picker sheet
+  gymOverlay: {
+    flex: 1,
+    backgroundColor: theme.colors.black + "B0",
+    justifyContent: "flex-end",
+  },
+  gymSheet: {
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 20,
+    maxHeight: "75%",
+    gap: 12,
+  },
+  gymSheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  gymSheetTitle: {
+    color: theme.colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  gymSheetClose: {
+    color: theme.colors.textMuted,
+    fontSize: 16,
+    fontWeight: "700",
+    padding: 4,
+  },
+  gymSheetSubtitle: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: "500",
+    marginTop: -6,
+  },
+  gymSaving: {
+    paddingVertical: 40,
+  },
+  gymOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 10,
+  },
+  gymOptionCurrent: {},
+  gymOptionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: theme.colors.elevated,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  gymOptionIconCurrent: {
+    backgroundColor: theme.colors.purple + "20",
+    borderColor: theme.colors.purple,
+  },
+  gymOptionIconText: {
+    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  gymOptionName: {
+    flex: 1,
+    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  gymOptionNameCurrent: {
+    fontWeight: "800",
+  },
+  gymOptionCheck: {
+    color: theme.colors.purple,
+    fontSize: 15,
+    fontWeight: "900",
   },
   // Modal
   modalSafe: {
@@ -519,9 +712,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    color: theme.colors.text,
-    fontSize: 16,
+    color: theme.colors.textMuted,
+    fontSize: 12,
     fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
   privacyToggle: {
     flexDirection: "row",

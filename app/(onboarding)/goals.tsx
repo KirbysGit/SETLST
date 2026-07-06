@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -195,6 +195,44 @@ export default function Goals() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [saving, setSaving] = useState(false);
 
+  // Prefill from the existing profile so re-entering doesn't start from scratch
+  useEffect(() => {
+    async function loadExisting() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const keys = STEPS.map((s) => s.key);
+      const { data } = await supabase
+        .from("profiles")
+        .select(keys.join(", "))
+        .eq("id", user.id)
+        .single();
+
+      if (!data) return;
+      const row = data as unknown as Record<string, unknown>;
+      const prefill: Record<string, string | string[]> = {};
+      for (const key of keys) {
+        const value = row[key];
+        if (typeof value === "string" || Array.isArray(value)) prefill[key] = value as string | string[];
+      }
+      if (Object.keys(prefill).length) setAnswers((a) => ({ ...prefill, ...a }));
+    }
+    loadExisting();
+  }, []);
+
+  // Early exit: keep whatever has been answered so far
+  async function saveAndExit() {
+    if (Object.keys(answers).length) {
+      setSaving(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").upsert({ id: user.id, ...answers });
+      }
+      setSaving(false);
+    }
+    router.replace("/(tabs)");
+  }
+
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
   const answer = answers[current?.key ?? ""];
@@ -241,13 +279,18 @@ export default function Goals() {
       {/* Top bar */}
       <View style={styles.topBar}>
         <Image source={appIcon} style={styles.logoSmall} resizeMode="contain" />
-        <Text style={styles.stepCounter}>Step {step + 1} of {STEPS.length}</Text>
+        <View style={styles.topBarRight}>
+          <Text style={styles.stepCounter}>Step {step + 1} of {STEPS.length}</Text>
+          <TouchableOpacity onPress={saveAndExit} style={styles.exitButton} disabled={saving}>
+            <Text style={styles.exitButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Progress bar */}
       <View style={styles.progressTrack}>
         <LinearGradient
-          colors={["#2EF2C3", "#8B5CF6"]}
+          colors={theme.gradients.brand}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.progressFill, { width: `${((step + 1) / totalSteps) * 100}%` }]}
@@ -362,6 +405,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+  },
+  topBarRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  exitButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  exitButtonText: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: "800",
   },
   logoSmall: {
     width: 28,

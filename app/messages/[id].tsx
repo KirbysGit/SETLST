@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -14,20 +13,14 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { usePublicProfile } from "../../hooks/usePublicProfile";
 import { useChat } from "../../hooks/useChat";
 import { Message } from "../../lib/messages";
+import { formatClockTime } from "../../lib/time";
+import { Avatar } from "../../components/shared/Avatar";
+import { GradientButton } from "../../components/shared/GradientButton";
 import { theme } from "../../constants/theme";
-
-function formatTime(iso: string) {
-  const d = new Date(iso);
-  const h = d.getHours();
-  const m = d.getMinutes().toString().padStart(2, "0");
-  const ampm = h >= 12 ? "PM" : "AM";
-  return `${((h + 11) % 12) + 1}:${m} ${ampm}`;
-}
 
 function Bubble({ message, mine }: { message: Message; mine: boolean }) {
   return (
@@ -37,7 +30,7 @@ function Bubble({ message, mine }: { message: Message; mine: boolean }) {
           {message.body}
         </Text>
       </View>
-      <Text style={styles.bubbleTime}>{formatTime(message.created_at)}</Text>
+      <Text style={styles.bubbleTime}>{formatClockTime(message.created_at)}</Text>
     </View>
   );
 }
@@ -52,7 +45,6 @@ export default function ChatScreen() {
 
   const loading = profileLoading || chatLoading;
   const canChat = relationship === "friends";
-  const initials = profile?.display_name?.slice(0, 2).toUpperCase() ?? "??";
 
   async function handleSend() {
     if (!draft.trim() || sending) return;
@@ -87,18 +79,11 @@ export default function ChatScreen() {
             onPress={() => router.push(`/user/${id}`)}
             activeOpacity={0.75}
           >
-            {profile?.avatar_url ? (
-              <Image source={{ uri: profile.avatar_url }} style={styles.headerAvatar} />
-            ) : (
-              <LinearGradient
-                colors={["#2EF2C3", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.headerAvatar}
-              >
-                <Text style={styles.headerInitials}>{initials}</Text>
-              </LinearGradient>
-            )}
+            <Avatar
+              name={profile?.display_name ?? "??"}
+              imageUrl={profile?.avatar_url}
+              size={38}
+            />
             <View style={styles.headerInfo}>
               <Text style={styles.headerName} numberOfLines={1}>
                 {profile?.display_name ?? "Setlster"}
@@ -156,21 +141,12 @@ export default function ChatScreen() {
               multiline
               maxLength={2000}
             />
-            <TouchableOpacity
-              style={[styles.sendButton, (!draft.trim() || sending) && styles.sendButtonDisabled]}
+            <GradientButton
+              size="icon"
+              icon={<Ionicons name="arrow-up" size={18} color={theme.colors.background} />}
               onPress={handleSend}
               disabled={!draft.trim() || sending}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={["#2EF2C3", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.sendGradient}
-              >
-                <Ionicons name="arrow-up" size={18} color={theme.colors.background} />
-              </LinearGradient>
-            </TouchableOpacity>
+            />
           </View>
         )}
       </KeyboardAvoidingView>
@@ -210,18 +186,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-  },
-  headerAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerInitials: {
-    color: theme.colors.background,
-    fontSize: 13,
-    fontWeight: "900",
   },
   headerInfo: {
     flex: 1,
@@ -324,20 +288,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     maxHeight: 110,
   },
-  sendButton: {
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  sendButtonDisabled: {
-    opacity: 0.4,
-  },
-  sendGradient: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
   // Guard
   guard: {
     margin: 14,
