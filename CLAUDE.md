@@ -39,8 +39,9 @@ app/
   _layout.tsx              # root: auth-state redirect logic (see below)
   (auth)/                  # index (landing), login, signup
   (onboarding)/             # profile-setup -> connect-spotify -> choose-gym -> goals-intro -> goals
-  (tabs)/                   # index (home/feed), friends, messages (stub), forum (coming soon), profile
+  (tabs)/                   # index (home/feed), friends, messages (conversation list), forum (coming soon), profile
   user/[id].tsx              # public profile by user id
+  messages/[id].tsx           # 1:1 chat screen (friends only)
   settings.tsx
 ```
 
@@ -57,7 +58,9 @@ app/
 
 **Spotify** (`lib/spotify.ts`, `contexts/SpotifyContext.tsx`) — PKCE flow. `spotifyFetch()` handles 204 No Content (nothing currently playing) by returning `null` — don't `.json()` blindly. Auth response is handled in a `useEffect`, never call `router.replace()` during render (caused a "Cannot update a component" crash before).
 
-**Messaging** — `app/(tabs)/messages.tsx` is currently a placeholder stub. The Friends tab's ✉ button routes to `/messages/[id]` which does not exist yet — needs to be built.
+**Friends** (`lib/friends.ts`, `hooks/useFriends.ts`, `hooks/useFriendRequests.ts`) — single `friends` table (`requester_id`, `receiver_id`, `status` = `pending`/`accepted`); decline = row delete. `getRelationship()` maps a pair to `none | outgoing | incoming | friends`, which drives the Connect-button state machine in `PublicProfileView`. RLS: requester inserts, receiver updates (accept), either party deletes.
+
+**Messaging** (`lib/messages.ts`, `hooks/useChat.ts`, `hooks/useConversations.ts`, `hooks/useUnreadCount.ts`) — friends-only chat, enforced at the DB by an `are_friends()` security-definer function in the insert policy. Delivery via Supabase Realtime on the `messages` table (must be in the `supabase_realtime` publication). **Realtime `postgres_changes` filters are single-column equality only** — all subscriptions filter `receiver_id=eq.<me>`; own sends render via optimistic append. Unread = `read_at is null`; tab badge polls every 30s. Chat list is newest-first for the inverted FlatList.
 
 ## Known gotchas (don't relitigate these)
 
@@ -68,6 +71,10 @@ app/
 - Tab bar must use `useSafeAreaInsets()` bottom inset for height/padding, not a hardcoded height — otherwise the bar is unreachable under Android gesture-nav (no home button).
 - Keyboard covering form fields: wrap content in `ScrollView` inside `KeyboardAvoidingView`, don't rely on `KeyboardAvoidingView` alone.
 - After structural JSX tag changes, clear Metro cache (`npx expo start --clear`) if errors look stale/mismatched.
+- `create table if not exists` silently no-ops when a stale table with a different schema already exists — later statements then fail on missing columns (hit this with `messages.read_at`). Check for an existing table before assuming the create ran.
+- Supabase Realtime `postgres_changes` filters support only single-column equality (no `or=`) — filter on one column and refine client-side.
+- New Expo Router routes make `router.push()` typecheck errors until the dev server regenerates `.expo/types` — start the server once before trusting `tsc` on route strings.
+- Supabase free tier auto-pauses the project after ~1 week idle; its DNS stops resolving and every request fails with "TypeError: Failed to fetch". Resume from the dashboard — it's not a code bug.
 
 ## Brand assets (`images/`)
 
